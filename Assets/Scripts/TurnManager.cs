@@ -38,17 +38,17 @@ public class TurnManager : Singleton<TurnManager>
         
         if (_startGameOnAwake)
         {
-            Initialize(_playerCount);
+            Initialize();
         }
     }
     
-    public void Initialize(int playerCount = 2)
+    public void Initialize()
     {
-        _playerCount = playerCount;
+        _playerCount = PlayerSettingsManager.Settings.playerCount;
         _currentPlayerIndex = 0;
         IsGameEnding = false;
         
-        PlayerManager.Instance.Initialize(playerCount);
+        PlayerManager.Instance.Initialize();
         SetTurnFlowState(TurnFlowState.START_TURN);
     }
     
@@ -190,7 +190,13 @@ public class TurnManager : Singleton<TurnManager>
     private void OnGameOverFlowEntered()
     {
         Player winner = ScoreManager.Instance.GetWinner();
+        PlayerManager.Instance.RecordGameResults(winner);
+        PlayerSettingsManager.Instance.SaveProfiles();
         
+        foreach (var p in PlayerSettingsManager.Settings.playerProfiles)
+            Debug.Log($"{p.playerName}: {p.gamesPlayed} games, High Score: {p.highScore}");
+
+
         UIManager.Instance.DoSplashText($"Game Over! {winner.Name} wins!");
     }
 }

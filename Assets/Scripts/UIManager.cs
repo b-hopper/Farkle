@@ -25,9 +25,6 @@ public class UIManager : Singleton<UIManager>
     
     [SerializeField] private TMPro.TextMeshProUGUI _debugText;
     
-    [SerializeField] private bool _rotateCanvas = false;
-
-    
     protected override void Awake()
     {
         base.Awake();
@@ -355,7 +352,7 @@ public class UIManager : Singleton<UIManager>
 
     public bool FlipScreen()
     {
-        if (!_rotateCanvas)
+        if (!PlayerSettingsManager.Settings.rotateUIAtEndOfTurn)
         {
             return false;
         }
@@ -374,11 +371,6 @@ public class UIManager : Singleton<UIManager>
     
     private void RotateCanvasTo(float angle = 180.0f, float duration = 1.5f)
     {
-        if (_rotateCanvas == false)
-        {
-            return;
-        }
-        
         RotationTransform.DORotate(new Vector3(0, 0, angle), duration).SetEase(Ease.InOutQuint);
     }
     

@@ -5,15 +5,17 @@ using UnityEngine.Serialization;
 [Serializable]
 public class Player
 {
-    public string Name;
+    public PlayerProfile Profile;
+    
+    public string Name => Profile?.playerName ?? "Player";
     [SerializeField] public ScoreManager.PlayerScore Score;
     
     public bool HasTakenFinalTurn = false;
     
-    public Player(string name)
+    public Player(PlayerProfile profile)
     {
+        Profile = profile;
         Score = new ScoreManager.PlayerScore(0, 0);
-        Name = name;
     }
 }
 
@@ -54,14 +56,39 @@ public class PlayerManager : Singleton<PlayerManager>
     
     public Player[] AllPlayers => players;
 
-    public void Initialize(int playerCount = 1)
+    public void Initialize(int playerCount = -1)
     {
+        var profiles = PlayerSettingsManager.Settings.playerProfiles;
+        playerCount = playerCount > 0 ? playerCount : profiles.Length;
+
         players = new Player[playerCount];
 
-        for (int i = 0; i < players.Length; i++)
+        for (int i = 0; i < playerCount; i++)
         {
-            players[i] = new Player($"Player {i + 1}");
+            var profile = i < profiles.Length ? profiles[i] : new PlayerProfile { playerName = $"Player {i + 1}" };
+            players[i] = new Player(profile);
         }
     }
+    
+    public void RecordGameResults(Player winner)
+    {
+        foreach (var player in players)
+        {
+            var profile = player.Profile;
+            profile.gamesPlayed++;
+            profile.totalScore += player.Score.Score;
+
+            if (player.Score.Score > profile.highScore)
+            {
+                profile.highScore = player.Score.Score;
+            }
+            
+            if (player == winner)
+            {
+                profile.gamesWon++;
+            }
+        }
+    }
+
     
 }
