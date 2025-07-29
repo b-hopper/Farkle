@@ -25,6 +25,7 @@ public class FarkleGame : MonoBehaviour
     public UnityEvent OnFarkle;
     public UnityEvent OnTurnEnd;
     public UnityEvent OnDiceHeld;
+    public UnityEvent OnGameStart;
     
     public UnityEvent<int> OnSelectDice;
     public UnityEvent<int> OnTurnScoreUpdated;
@@ -78,7 +79,9 @@ public class FarkleGame : MonoBehaviour
                     LockInput();
                     DOTween.Sequence()
                         .AppendCallback(() => UIManager.Instance.DoSplashText("Farkle!"))
-                        .AppendInterval(1f)
+                        .AppendInterval(1.0f)
+                        .AppendCallback(() => UIManager.Instance.FlipScreen())
+                        .AppendInterval(1.5f)
                         .AppendCallback(() => EndTurn(true));
                 }
             });
@@ -109,10 +112,11 @@ public class FarkleGame : MonoBehaviour
         
         LockInput();
         
-        // DOTween Sequence - Delay, then invoke OnTurnEnd
         DOTween.Sequence()
             .AppendCallback(() => UIManager.Instance.DoSplashText("Holding dice"))
-            .AppendInterval(1f)
+            .AppendInterval(1.0f)
+            .AppendCallback(() => UIManager.Instance.FlipScreen())
+            .AppendInterval(1.5f)
             .AppendCallback(() => EndTurn());
     }
 
@@ -153,5 +157,7 @@ public class FarkleGame : MonoBehaviour
     {
         DiceManager.Instance.ResetDice();
         TurnManager.Instance.Initialize();
+        
+        OnGameStart.Invoke();
     }
 }

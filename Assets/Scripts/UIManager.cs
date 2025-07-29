@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -22,7 +23,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button LeftButton;
     [SerializeField] private Button RightButton;
     
+    [SerializeField] private RectTransform RotationTransform;
+    
     [SerializeField] private TMPro.TextMeshProUGUI _debugText;
+    
+    [SerializeField] private bool _rotateCanvas = false;
 
     
     private void Awake()
@@ -38,7 +43,7 @@ public class UIManager : MonoBehaviour
         
         
         if (_playerNameText == null || _scoreText == null || 
-            LeftButton_Text == null || 
+            LeftButton_Text == null || RotationTransform == null ||
             LeftButton_SubText == null || LeftButton_SubValue == null || 
             RightButton_Text == null || RightButton_SubText == null || 
             RightButton_SubValue == null || _splashText == null ||
@@ -53,6 +58,7 @@ public class UIManager : MonoBehaviour
     private void InitDelegates()
     {
         FarkleGame.Instance.OnSelectDice.AddListener(UpdateUI);
+        FarkleGame.Instance.OnGameStart.AddListener(ResetCanvasRotation);
     }
 
     private void Start()
@@ -355,6 +361,31 @@ public class UIManager : MonoBehaviour
     }
 #endregion
 
+    public void FlipScreen() => RotateCanvas();
+    
+    private void RotateCanvas(float angle = 180.0f, float duration = 1.5f)
+    {
+        float currentAngle = RotationTransform.eulerAngles.z;
+        float targetAngle = currentAngle + angle;
+        
+        RotateCanvasTo(targetAngle, duration);
+    }
+    
+    private void RotateCanvasTo(float angle = 180.0f, float duration = 1.5f)
+    {
+        if (_rotateCanvas == false)
+        {
+            return;
+        }
+        
+        RotationTransform.DORotate(new Vector3(0, 0, angle), duration).SetEase(Ease.InOutQuint);
+    }
+    
+    private void ResetCanvasRotation()
+    {
+        RotateCanvasTo(0.0f, 1.5f);
+    }
+    
     public void UpdateDebugText(string text)
     {
         if (_debugText == null)
