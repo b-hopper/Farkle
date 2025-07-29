@@ -31,7 +31,7 @@ public class DieView : MonoBehaviour
         
         if (_index == -1)
         {
-            Debug.LogError("DieView not found in ViewController.");
+            FarkleLogger.LogError("DieView not found in ViewController.");
         }
     }
 

@@ -17,10 +17,8 @@ public class Player
     }
 }
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : Singleton<PlayerManager>
 {
-    public static PlayerManager Instance { get; private set; }
-
     [SerializeField] private Player[] players;
     
     public Player CurrentPlayer
@@ -31,7 +29,7 @@ public class PlayerManager : MonoBehaviour
             
             if (idx >= players.Length || idx < 0)
             {
-                Debug.LogError($"(PlayerManager::CurrentPlayer) Invalid player index: {idx}");
+                FarkleLogger.LogError($"(PlayerManager::CurrentPlayer) Invalid player index: {idx}");
                 return null;
             }
             
@@ -55,19 +53,6 @@ public class PlayerManager : MonoBehaviour
     }
     
     public Player[] AllPlayers => players;
-
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
 
     public void Initialize(int playerCount = 1)
     {

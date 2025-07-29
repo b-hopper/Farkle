@@ -1,27 +1,18 @@
 using System;
 using UnityEngine;
 
-public class ViewController : MonoBehaviour
+public class ViewController : Singleton<ViewController>
 {
-    public static ViewController Instance { get; private set; }
-    
     [SerializeField] public DieView[] dieViews;
     [SerializeField] private float rollDiceVariation = 0.25f;
     
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        base.Awake();
         
         if (dieViews.Length == 0)
         {
-            Debug.LogError("No DieViews found.");
+            FarkleLogger.LogError("No DieViews found.");
         }
     }
 

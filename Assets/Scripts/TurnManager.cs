@@ -3,9 +3,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-public class TurnManager : MonoBehaviour
+public class TurnManager : Singleton<TurnManager>
 {
-    public static TurnManager Instance { get; private set; }
     public int CurrentPlayerIndex => _currentPlayerIndex;
 
     [SerializeField] private int _playerCount = 2;
@@ -30,18 +29,6 @@ public class TurnManager : MonoBehaviour
         END_TURN,
         FARKLE,
         GAME_OVER
-    }
-    
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
     private void Start()
@@ -106,7 +93,7 @@ public class TurnManager : MonoBehaviour
         _currentState = state;
         
         UIManager.Instance.UpdateDebugText($"{_currentState}");
-        Debug.Log($"(TurnManager::SetTurnFlowState) <color=green>{_currentState}</color>");
+        FarkleLogger.Log($"(TurnManager::SetTurnFlowState) <color=green>{_currentState}</color>");
         
         HandleTurnFlow();
         
@@ -194,7 +181,7 @@ public class TurnManager : MonoBehaviour
     {
         if (IsGameEnding)
         {
-            Debug.LogWarning($"(TurnManager::OnEndTurnFlowEntered) Game is ending... {PlayerManager.Instance.CurrentPlayer.Name} setting final turn flag");
+            FarkleLogger.LogWarning($"(TurnManager::OnEndTurnFlowEntered) Game is ending... {PlayerManager.Instance.CurrentPlayer.Name} setting final turn flag");
             PlayerManager.Instance.CurrentPlayer.HasTakenFinalTurn = true;
         }
         UIManager.Instance.UpdateUI();

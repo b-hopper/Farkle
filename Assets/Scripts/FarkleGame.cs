@@ -6,11 +6,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-public class FarkleGame : MonoBehaviour
+public class FarkleGame : Singleton<FarkleGame>
 {
-    public static FarkleGame Instance { get; private set; }
-    
-    // UnityEvents
 #region UnityEvents
 
     /// <summary>
@@ -36,17 +33,6 @@ public class FarkleGame : MonoBehaviour
 
     private bool _inputLock = false; // Lock input while animations are playing
     
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        } 
-    }
     
     public void RollDice()
     {
@@ -80,9 +66,19 @@ public class FarkleGame : MonoBehaviour
                     DOTween.Sequence()
                         .AppendCallback(() => UIManager.Instance.DoSplashText("Farkle!"))
                         .AppendInterval(1.0f)
-                        .AppendCallback(() => UIManager.Instance.FlipScreen())
-                        .AppendInterval(1.5f)
-                        .AppendCallback(() => EndTurn(true));
+                        .AppendCallback(() =>
+                        {
+                            if (UIManager.Instance.FlipScreen())
+                            {
+                                DOTween.Sequence()
+                                    .AppendInterval(1.5f)
+                                    .AppendCallback(() => EndTurn(true));
+                            }
+                            else
+                            {
+                                EndTurn(true);
+                            }
+                        });
                 }
             });
     }
@@ -111,13 +107,23 @@ public class FarkleGame : MonoBehaviour
         OnDiceHeld.Invoke();
         
         LockInput();
-        
+
         DOTween.Sequence()
             .AppendCallback(() => UIManager.Instance.DoSplashText("Holding dice"))
             .AppendInterval(1.0f)
-            .AppendCallback(() => UIManager.Instance.FlipScreen())
-            .AppendInterval(1.5f)
-            .AppendCallback(() => EndTurn());
+            .AppendCallback(() =>
+            {
+                if (UIManager.Instance.FlipScreen())
+                {
+                    DOTween.Sequence()
+                        .AppendInterval(1.5f)
+                        .AppendCallback(() => EndTurn());
+                }
+                else
+                {
+                    EndTurn();
+                }
+            });
     }
 
     private void EndTurn(bool farkle = false)

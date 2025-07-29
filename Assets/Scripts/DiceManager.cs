@@ -2,69 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
-using Random = UnityEngine.Random;
 
-public class Dice
+public class DiceManager : Singleton<DiceManager>
 {
-    public int Faces { get; } = 6;
-    public int Value { get; private set; } = 0;
-    public bool IsSelected { get; private set; }
-    public bool IsHeld { get; private set; } = false;
-
-    public void Roll()
-    {
-        Value = Random.Range(1, Faces + 1);
-    }
-
-    public void SetHeld()
-    {
-        IsHeld = true;
-        IsSelected = false;
-    }
-    
-    public void Select()
-    {
-        if (IsHeld)
-        {
-            return;
-        }
-        
-        IsSelected = true;
-    }
-    
-    public void Deselect()
-    {
-        IsSelected = false;
-    }
-    
-    public void Reset()
-    {
-        Value = 0;
-        IsSelected = false;
-        IsHeld = false;
-    }    
-}
-
-public class DiceManager : MonoBehaviour
-{
-    public static DiceManager Instance { get; private set; }
-    
     public Dice[] Dice { get; private set; }
     
     [HideInInspector]
     public bool FirstRoll = true; // First roll of the turn
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        base.Awake();
         
         Dice = new Dice[6];
         
@@ -259,11 +207,15 @@ public class DiceManager : MonoBehaviour
         
         List<int> values = selectedDice.Select(x => x.Value).ToList();
         Dictionary<int, int> valueCounts = values.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+        var settings = GameSettingsManager.Settings;
 
         // Check for 6 of a kind
         if (valueCounts.ContainsValue(6))
         {
-            int scoreToAdd = values[0] == 1 ? 4000 : values[0] * 100 * 4;
+            int valuePerDie = values[0] == 1 ? 10 * settings.pointsMultiplierOfAKind 
+                                      : values[0] * settings.pointsMultiplierOfAKind;
+            
+            int scoreToAdd = valuePerDie * 4;
 
             return scoreToAdd;
         }
@@ -272,8 +224,11 @@ public class DiceManager : MonoBehaviour
         if (valueCounts.ContainsValue(5))
         {
             int scoringVal = valueCounts.First(x => x.Value == 5).Key;
-            // 5 of a kind is worth 5 times the value of the die, or 3000 points for a 1
-            int scoreToAdd = scoringVal == 1 ? 3000 : scoringVal * 100 * 3;
+            
+            int valuePerDie = scoringVal == 1 ? 10 * settings.pointsMultiplierOfAKind 
+                                      : scoringVal * settings.pointsMultiplierOfAKind;
+            
+            int scoreToAdd = valuePerDie * 3; 
             
             // Recursively call CalculateScore with the 5 dice removed
             return CalculateScore(selectedDice.Where(x => x.Value != scoringVal).ToArray()) 
@@ -285,37 +240,36 @@ public class DiceManager : MonoBehaviour
         if (valueCounts.Count == 2 && valueCounts.All(x => x.Value == 3))
         {
             
-            // 2 triplets is worth 2500 points
-            return 2500;
+            return settings.pointsForTwoTriplets;
         }
         
         // Check for 3 pairs
         if (valueCounts.Count == 3 && valueCounts.All(x => x.Value == 2))
         {
-            // 3 pairs is worth 1500 points
-            return 1500;
+            return settings.pointsForThreePairs;
         }
         // Check for 3 pairs, but two of the pairs are the same
         if (valueCounts.Count == 2 && valueCounts.All(x => x.Value == 2 || x.Value == 4))
         {
-            // 3 pairs is worth 1500 points
-            return 1500;
+            return settings.pointsForThreePairs;
         }
         
         // Check for a straight
         if (values.Distinct().OrderBy(x => x).SequenceEqual(new[] { 1, 2, 3, 4, 5, 6 }))
         {
-            // A straight is worth 1500 points
-            return 1500;
+            return settings.pointsForStraight;
         }
         
         // Check for 4 of a kind
         if (valueCounts.ContainsValue(4))
         {
             int scoringVal = valueCounts.First(x => x.Value == 4).Key;
-            // 4 of a kind is worth 4 times the value of the die, or 2000 points for a 1
-            int scoreToAdd = scoringVal == 1 ? 2000 : scoringVal * 100 * 2;
-
+            
+            int valuePerDie = scoringVal == 1 ? 10 * settings.pointsMultiplierOfAKind 
+                                      : scoringVal * settings.pointsMultiplierOfAKind;
+            
+            int scoreToAdd = valuePerDie * 2; // 4 of a kind is worth double the value of the die
+            
             // Recursively call CalculateScore with the 4 dice removed
             return CalculateScore(selectedDice.Where(x => x.Value != scoringVal).ToArray()) 
                    + scoreToAdd;
@@ -325,8 +279,9 @@ public class DiceManager : MonoBehaviour
         if (valueCounts.ContainsValue(3))
         {
             int scoringVal = valueCounts.First(x => x.Value == 3).Key;
-            // 3 of a kind is worth 3 times the value of the die, or 1000 points for a 1
-            int scoreToAdd = scoringVal == 1 ? 1000 : scoringVal * 100;
+            
+            int scoreToAdd = scoringVal == 1 ? 10 * settings.pointsMultiplierOfAKind 
+                                      : scoringVal * settings.pointsMultiplierOfAKind;
             
             // Recursively call CalculateScore with the 3 dice removed
             return CalculateScore(selectedDice.Where(x => x.Value != scoringVal).ToArray()) 
@@ -340,12 +295,12 @@ public class DiceManager : MonoBehaviour
             
             if (valueCounts.ContainsKey(1))
             {
-                scoreToAdd += valueCounts[1] * 100;
+                scoreToAdd += valueCounts[1] * settings.pointsPerOne;
             }
             
             if (valueCounts.ContainsKey(5))
             {
-                scoreToAdd += valueCounts[5] * 50;
+                scoreToAdd += valueCounts[5] * settings.pointsPerFive;
             }
             
             // Recursively call CalculateScore with the 1s and 5s removed

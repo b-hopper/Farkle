@@ -5,10 +5,8 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager : Singleton<UIManager>
 {
-    public static UIManager Instance { get; private set; }
-    
     [SerializeField] private TMPro.TextMeshProUGUI _playerNameText;
     [SerializeField] private TMPro.TextMeshProUGUI _scoreText;
     [SerializeField] private TMPro.TextMeshProUGUI LeftButton_Text;
@@ -30,17 +28,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private bool _rotateCanvas = false;
 
     
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        
+        base.Awake();
         
         if (_playerNameText == null || _scoreText == null || 
             LeftButton_Text == null || RotationTransform == null ||
@@ -49,7 +39,7 @@ public class UIManager : MonoBehaviour
             RightButton_SubValue == null || _splashText == null ||
             LeftButton == null || RightButton == null)
         {
-            Debug.LogError("UIManager: Missing references.");
+            FarkleLogger.LogError("UIManager: Missing references.");
         }
         
         InitDelegates();
@@ -80,7 +70,7 @@ public class UIManager : MonoBehaviour
         
         if (currentPlayer == null)
         {
-            Debug.LogError("UIManager: Current player is null.");
+            FarkleLogger.LogError("UIManager: Current player is null.");
             return;
         }
         
@@ -120,7 +110,7 @@ public class UIManager : MonoBehaviour
                 DoGameOverUI();
                 break;
             default:
-                Debug.LogError("UIManager: Invalid state.");
+                FarkleLogger.LogError("UIManager: Invalid state.");
                 break;
             
         }
@@ -258,10 +248,12 @@ public class UIManager : MonoBehaviour
     {
         if (FarkleGame.Instance.InputLock)
         {
+            FarkleLogger.LogWarning("UIManager: Input is locked, ignoring left button press.");
             return;
         }
         
         TurnManager.TurnFlowState state = TurnManager.Instance.CurrentState;
+        FarkleLogger.Log($"UIManager: Pressed left button in state: {state}");
         
         switch (state)
         {
@@ -297,7 +289,7 @@ public class UIManager : MonoBehaviour
                 break;
             
             default:
-                Debug.LogError("UIManager: Invalid state.");
+                FarkleLogger.LogError("UIManager: Invalid state.");
                 break;
         }
     }
@@ -355,14 +347,23 @@ public class UIManager : MonoBehaviour
                 break;
             
             default:
-                Debug.LogError("UIManager: Invalid state.");
+                FarkleLogger.LogError("UIManager: Invalid state.");
                 break;
         }
     }
 #endregion
 
-    public void FlipScreen() => RotateCanvas();
-    
+    public bool FlipScreen()
+    {
+        if (!_rotateCanvas)
+        {
+            return false;
+        }
+        
+        RotateCanvas();
+        return true;
+    }
+
     private void RotateCanvas(float angle = 180.0f, float duration = 1.5f)
     {
         float currentAngle = RotationTransform.eulerAngles.z;

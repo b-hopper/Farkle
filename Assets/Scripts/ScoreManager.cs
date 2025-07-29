@@ -1,10 +1,9 @@
 using System;
 using UnityEngine;
 
-public class ScoreManager : MonoBehaviour
+public class ScoreManager : Singleton<ScoreManager>
 {
-    public static ScoreManager Instance { get; private set; }
-    
+    public int ScoreToWin => GameSettingsManager.Settings.targetScore;
     public int BottomFeedScore { get; private set; }
 
     [Serializable]
@@ -42,20 +41,6 @@ public class ScoreManager : MonoBehaviour
 
     public Player CurrentPlayer => PlayerManager.Instance.CurrentPlayer;
     
-    public int ScoreToWin = 10000;
-
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
     private void Start()
     {
         FarkleGame.Instance.OnFarkle.AddListener(OnFarkle);
