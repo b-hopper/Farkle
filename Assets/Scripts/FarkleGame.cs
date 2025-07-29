@@ -61,7 +61,6 @@ public class FarkleGame : Singleton<FarkleGame>
         
                 if (DiceManager.Instance.CheckForFarkle())
                 {
-                    
                     LockInput();
                     DOTween.Sequence()
                         .AppendCallback(() => UIManager.Instance.DoSplashText("Farkle!"))

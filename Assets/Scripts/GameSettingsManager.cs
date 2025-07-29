@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GameSettingsManager : Singleton<GameSettingsManager>
 {
-    [SerializeField] private GameSettings _defaultSettings;
+    [SerializeField] private GameSettings _settings;
 
-    public static GameSettings Settings => Instance._defaultSettings;
+    public static GameSettings Settings => Instance._settings;
     
     protected override void Awake()
     {
         base.Awake();
         
-        if (_defaultSettings == null)
+        if (_settings == null)
         {
             FarkleLogger.LogError("Default game settings are not set. Please assign them in the inspector.");
         }
@@ -24,7 +25,7 @@ public class GameSettingsManager : Singleton<GameSettingsManager>
             return;
         }
         
-        _defaultSettings = newSettings;
+        _settings = newSettings;
         FarkleLogger.Log("Game settings updated successfully.");
     }
 }

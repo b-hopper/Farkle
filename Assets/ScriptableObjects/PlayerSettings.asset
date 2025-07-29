@@ -14,7 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCount: 2
   playerProfiles:
-  - playerName: 
+  - playerName: Bread
+    highScore: 0
+    gamesPlayed: 0
+    gamesWon: 0
+    totalScore: 0
+  - playerName: Lern
     highScore: 0
     gamesPlayed: 0
     gamesWon: 0

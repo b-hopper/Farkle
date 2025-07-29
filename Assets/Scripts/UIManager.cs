@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
@@ -7,8 +8,6 @@ using UnityEngine.UI;
 
 public class UIManager : Singleton<UIManager>
 {
-    [SerializeField] private TMPro.TextMeshProUGUI _playerNameText;
-    [SerializeField] private TMPro.TextMeshProUGUI _scoreText;
     [SerializeField] private TMPro.TextMeshProUGUI LeftButton_Text;
     [SerializeField] private TMPro.TextMeshProUGUI LeftButton_SubText;
     [SerializeField] private TMPro.TextMeshProUGUI LeftButton_SubValue;
@@ -24,12 +23,17 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private RectTransform RotationTransform;
     
     [SerializeField] private TMPro.TextMeshProUGUI _debugText;
+
+    [SerializeField] private Transform _playerListContainer;
+    [SerializeField] private PlayerUIWidget _playerUIWidgetPrefab;
+    private readonly List<PlayerUIWidget> _playerWidgets = new List<PlayerUIWidget>();
+    
     
     protected override void Awake()
     {
         base.Awake();
         
-        if (_playerNameText == null || _scoreText == null || 
+        if (_playerListContainer == null || _playerUIWidgetPrefab == null || 
             LeftButton_Text == null || RotationTransform == null ||
             LeftButton_SubText == null || LeftButton_SubValue == null || 
             RightButton_Text == null || RightButton_SubText == null || 
@@ -63,20 +67,25 @@ public class UIManager : Singleton<UIManager>
     
     private void UpdatePlayerUI()
     {
-        Player currentPlayer = PlayerManager.Instance.CurrentPlayer;
+        var players = PlayerManager.Instance.AllPlayers;
+        var currentIndex = TurnManager.Instance.CurrentPlayerIndex;
         
-        if (currentPlayer == null)
+        while (_playerWidgets.Count < players.Length)
         {
-            FarkleLogger.LogError("UIManager: Current player is null.");
-            return;
+            var widget = Instantiate(_playerUIWidgetPrefab, _playerListContainer);
+            _playerWidgets.Add(widget);
         }
         
-        ScoreManager.PlayerScore currentPlayerScore = currentPlayer.Score;
+        for (int i = 0; i < players.Length; i++)
+        {
+            _playerWidgets[i].gameObject.SetActive(true);
+            _playerWidgets[i].Setup(players[i], i == currentIndex);
+        }
         
-        _scoreText.text = $"{currentPlayerScore.Score}";
-        //_turnScoreText.text = $"{currentPlayerScore.TurnScore + currentPlayerScore.SelectedScore}";
-        //_selectedScoreText.text = $"{currentPlayerScore.SelectedScore}";
-        _playerNameText.text = $"{currentPlayer.Name}";
+        for (int i = players.Length; i < _playerWidgets.Count; i++)
+        {
+            _playerWidgets[i].gameObject.SetActive(false);
+        }
     }
 
 #region Button UI
@@ -250,7 +259,6 @@ public class UIManager : Singleton<UIManager>
         }
         
         TurnManager.TurnFlowState state = TurnManager.Instance.CurrentState;
-        FarkleLogger.Log($"UIManager: Pressed left button in state: {state}");
         
         switch (state)
         {
