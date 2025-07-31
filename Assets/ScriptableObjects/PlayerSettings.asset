@@ -15,14 +15,14 @@ MonoBehaviour:
   playerCount: 2
   playerProfiles:
   - playerName: Bread
-    highScore: 0
-    gamesPlayed: 0
-    gamesWon: 0
-    totalScore: 0
+    highScore: 10750
+    gamesPlayed: 2
+    gamesWon: 2
+    totalScore: 12400
   - playerName: Lern
-    highScore: 0
-    gamesPlayed: 0
+    highScore: 6600
+    gamesPlayed: 2
     gamesWon: 0
-    totalScore: 0
-  rotateUIAtEndOfTurn: 1
+    totalScore: 7250
+  rotateUIAtEndOfTurn: 0
   animationSpeedMultiplier: 1

@@ -22,6 +22,7 @@ public class TurnManager : Singleton<TurnManager>
     public enum TurnFlowState
     {
         NONE,
+        INIT_GAME,
         START_TURN,
         BOTTOM_FEED,
         ROLL_DICE,
@@ -44,12 +45,7 @@ public class TurnManager : Singleton<TurnManager>
     
     public void Initialize()
     {
-        _playerCount = PlayerSettingsManager.Settings.playerCount;
-        _currentPlayerIndex = 0;
-        IsGameEnding = false;
-        
-        PlayerManager.Instance.Initialize();
-        SetTurnFlowState(TurnFlowState.START_TURN);
+        SetTurnFlowState(TurnFlowState.INIT_GAME);
     }
     
     private void InitDelegates()
@@ -106,6 +102,9 @@ public class TurnManager : Singleton<TurnManager>
         {
             case TurnFlowState.NONE:
                 break;
+            case TurnFlowState.INIT_GAME:
+                OnInitGameFlowEntered();
+                break;
             case TurnFlowState.START_TURN:
                 OnStartTurnFlowEntered();
                 break;
@@ -130,6 +129,16 @@ public class TurnManager : Singleton<TurnManager>
         }
 
         UIManager.Instance.UpdateUI();
+    }
+
+    private void OnInitGameFlowEntered()
+    {
+        _playerCount = PlayerSettingsManager.Settings.playerCount;
+        _currentPlayerIndex = 0;
+        IsGameEnding = false;
+        
+        PlayerManager.Instance.Initialize();
+        SetTurnFlowState(TurnFlowState.START_TURN);
     }
 
 
@@ -183,6 +192,12 @@ public class TurnManager : Singleton<TurnManager>
         {
             FarkleLogger.LogWarning($"(TurnManager::OnEndTurnFlowEntered) Game is ending... {PlayerManager.Instance.CurrentPlayer.Name} setting final turn flag");
             PlayerManager.Instance.CurrentPlayer.HasTakenFinalTurn = true;
+            
+            var nextPlayer = PlayerManager.Instance.NextPlayer;
+            if (nextPlayer.HasTakenFinalTurn)
+            {
+                SetTurnFlowState(TurnFlowState.GAME_OVER);
+            }
         }
         UIManager.Instance.UpdateUI();
     }
@@ -193,10 +208,6 @@ public class TurnManager : Singleton<TurnManager>
         PlayerManager.Instance.RecordGameResults(winner);
         PlayerSettingsManager.Instance.SaveProfiles();
         
-        foreach (var p in PlayerSettingsManager.Settings.playerProfiles)
-            Debug.Log($"{p.playerName}: {p.gamesPlayed} games, High Score: {p.highScore}");
-
-
-        UIManager.Instance.DoSplashText($"Game Over! {winner.Name} wins!");
+        UIManager.Instance.ShowGameOverScreen();
     }
 }

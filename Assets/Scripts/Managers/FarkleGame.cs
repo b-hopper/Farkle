@@ -165,4 +165,9 @@ public class FarkleGame : Singleton<FarkleGame>
         
         OnGameStart.Invoke();
     }
+    
+    public void ReturnToMainMenu()
+    {
+        // TODO once the main menu is implemented
+    }
 }

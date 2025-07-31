@@ -1,23 +1,31 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
-public class PauseMenu : MonoBehaviour
+public class PauseMenu : FarkleUIElement
 {
-    [SerializeField] private GameObject pauseMenuUI;
-    
+    // We don't want to use `gameObject` here, because we need to listen for the escape key (back button) press
+    // So we need this object to stay active in the scene
+    [SerializeField] private GameObject pauseMenuUIObj;
+
+    protected override void Init()
+    {
+        ElementName = "PauseMenu";
+        
+        base.Init();
+    }
+
     void Update()
     {
-#if UNITY_ANDROID
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            pauseMenuUI.gameObject.SetActive(!pauseMenuUI.gameObject.activeSelf);
+            pauseMenuUIObj.gameObject.SetActive(!pauseMenuUIObj.gameObject.activeSelf);
         }
-#endif
     }
     
     public void ResumeGame()
     {
-        pauseMenuUI.gameObject.SetActive(false);
+        pauseMenuUIObj.gameObject.SetActive(false);
     }
 
     public void MainMenu()

@@ -2,13 +2,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerUIWidget : MonoBehaviour
+public class PlayerUIWidget : FarkleUIElement
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private Image highlightBackground;
 
-    public void Setup(Player player, bool isCurrent)
+    public void Setup(Player player, bool highlight)
     {
         if (player == null) return;
 
@@ -17,7 +17,7 @@ public class PlayerUIWidget : MonoBehaviour
         
         if (highlightBackground != null)
         {
-            highlightBackground.enabled = isCurrent;
+            highlightBackground.enabled = highlight;
         }
     }
 }

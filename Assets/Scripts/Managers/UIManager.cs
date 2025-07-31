@@ -28,6 +28,12 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private PlayerUIWidget _playerUIWidgetPrefab;
     private readonly List<PlayerUIWidget> _playerWidgets = new List<PlayerUIWidget>();
     
+    [SerializeField] private GameOverScreen _gameOverScreenPrefab;
+
+    private GameOverScreen GameOverScreen = null;
+    
+    [SerializeField] private Transform _menusContainer;
+    
     
     protected override void Awake()
     {
@@ -113,7 +119,6 @@ public class UIManager : Singleton<UIManager>
                 DoEndTurnUI();
                 break;
             case TurnManager.TurnFlowState.GAME_OVER:
-                DoGameOverUI();
                 break;
             default:
                 FarkleLogger.LogError("UIManager: Invalid state.");
@@ -211,14 +216,6 @@ public class UIManager : Singleton<UIManager>
         }
     }
     
-    private void DoGameOverUI()
-    {
-        LeftButton_Text.text = "NEW GAME";
-        LeftButton_SubText.text = "Rematch?";
-        
-        RightButton_Text.text = "EXIT";
-        RightButton_SubText.text = "Goodbye!";
-    }
 
     private void ClearButtonUI()
     {
@@ -290,7 +287,6 @@ public class UIManager : Singleton<UIManager>
                 break;
             
             case TurnManager.TurnFlowState.GAME_OVER:
-                FarkleGame.Instance.NewGame();
                 break;
             
             default:
@@ -345,10 +341,7 @@ public class UIManager : Singleton<UIManager>
                 break;
             
             case TurnManager.TurnFlowState.END_TURN:
-                break;
-            
             case TurnManager.TurnFlowState.GAME_OVER:
-                Application.Quit();
                 break;
             
             default:
@@ -396,4 +389,20 @@ public class UIManager : Singleton<UIManager>
         
         _debugText.text = text;
     }
+    
+    public void ShowGameOverScreen()
+    {
+        if (_gameOverScreenPrefab == null)
+        {
+            FarkleLogger.LogError("UIManager: GameOverScreen prefab is not assigned.");
+            return;
+        }
+        
+        if (GameOverScreen == null)
+        {
+            GameOverScreen = Instantiate(_gameOverScreenPrefab, _menusContainer);
+        }
+        
+        GameOverScreen.Show(PlayerManager.Instance.AllPlayers);
+    } 
 }
