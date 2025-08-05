@@ -1,36 +1,34 @@
-﻿using UnityEngine;
+﻿using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 
 namespace Managers
 {
     public class FarkleSceneManager : Singleton<FarkleSceneManager>
     {
-        private Scene currentScene;
 
-        [SerializeField] private Scene mainMenuScene;
-        [SerializeField] private Scene gameScene;
-
-        protected void Awake()
-        {
-            currentScene = SceneManager.GetActiveScene();
-        }
 
         public void LoadMainMenu()
         {
-            if (currentScene.name != mainMenuScene.name)
-            {
-                SceneManager.LoadScene(mainMenuScene.name);
-                currentScene = SceneManager.GetActiveScene();
-            }
+            Addressables.LoadSceneAsync("Scene_MainMenu");
         }
         
         public void LoadGameScene()
         {
-            if (currentScene.name != gameScene.name)
+            Addressables.LoadSceneAsync("Scene_GameScene").Completed += handle =>
             {
-                SceneManager.LoadScene(gameScene.name);
-                currentScene = SceneManager.GetActiveScene();
-            }
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    FarkleGame.Instance.NewGame();
+                }
+                else
+                {
+                    FarkleLogger.LogError("Failed to load game scene.");
+                }
+            };
         }
+
     }
 }

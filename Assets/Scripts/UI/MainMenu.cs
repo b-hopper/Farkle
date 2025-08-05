@@ -1,7 +1,13 @@
-﻿namespace UI
+﻿using Managers;
+using UnityEngine;
+
+namespace UI
 {
-    public class MainMenu
+    public class MainMenu : MonoBehaviour
     {
-        
+        public void PressPlayGame()
+        {
+            FarkleSceneManager.Instance.LoadGameScene();
+        }
     }
 }

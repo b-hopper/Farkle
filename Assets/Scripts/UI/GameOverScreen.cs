@@ -67,14 +67,14 @@ namespace UI
 
         public void OnRestartButtonClicked()
         {
-            FarkleGame.Instance.NewGame();
             Hide();
+            FarkleGame.Instance.NewGame();
         }
 
         public void OnMainMenuButtonClicked()
         {
-            FarkleGame.Instance.ReturnToMainMenu();
             Hide();
+            FarkleGame.Instance.ReturnToMainMenu();
         }
     }
 }

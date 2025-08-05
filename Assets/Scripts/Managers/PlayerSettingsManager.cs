@@ -1,40 +1,19 @@
 ﻿using System;
 using UnityEngine;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Utils;
 
 namespace Managers
 {
-    public class PlayerSettingsManager : Singleton<PlayerSettingsManager>
+    public class PlayerSettingsManager : Singleton<PlayerSettingsManager>, IGameManager
     {
         [ReadOnly] private PlayerSettings _settings;
         public static PlayerSettings Settings => Instance._settings;
 
         private static string SavePath => Path.Combine(Application.persistentDataPath, "player_profiles.json");
-
-        protected async void Awake()
-        {
-            Addressables.LoadAssetAsync<ScriptableObject>("PlayerSettings_Default").Completed += handle =>
-            {
-                if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
-                {
-                    SetSettings(handle.Result as PlayerSettings);
-
-                    if (_settings == null)
-                    {
-                        FarkleLogger.LogError("PlayerSettings_Default does not contain a PlayerSettings component.");
-                        return;
-                    }
-                }
-                else
-                {
-                    FarkleLogger.LogError("Failed to load PlayerSettings_Default from Addressables.");
-                }
-            };    
-            
-            LoadProfiles();
-        }
 
         public void SetSettings(PlayerSettings newSettings)
         {
@@ -95,6 +74,27 @@ namespace Managers
         private class PlayerProfileList
         {
             public PlayerProfile[] profiles;
+        }
+
+        public async Task InitAsync()
+        {
+            DontDestroyOnLoad(this);
+            
+            var handle = Addressables.LoadAssetAsync<ScriptableObject>("PlayerSettings_Default");
+            await handle.Task;
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                SetSettings(handle.Result as PlayerSettings);
+                if (_settings == null)
+                {
+                    FarkleLogger.LogError("PlayerSettings_Default does not contain a PlayerSettings component.");
+                }
+            }
+            else
+            {
+                FarkleLogger.LogError("Failed to load PlayerSettings_Default from Addressables.");
+            }
         }
     }
 }

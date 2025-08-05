@@ -139,7 +139,6 @@ namespace Managers
             _currentPlayerIndex = 0;
             IsGameEnding = false;
 
-            PlayerManager.Instance.Initialize();
             SetTurnFlowState(TurnFlowState.START_TURN);
         }
 

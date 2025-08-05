@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -22,7 +23,7 @@ namespace Managers
         }
     }
 
-    public class PlayerManager : Singleton<PlayerManager>
+    public class PlayerManager : Singleton<PlayerManager>, IGameManager
     {
         [SerializeField] private Player[] players;
 
@@ -59,7 +60,7 @@ namespace Managers
 
         public Player[] AllPlayers => players;
 
-        public void Initialize(int playerCount = -1)
+        public void InitPlayers(int playerCount = -1)
         {
             var profiles = PlayerSettingsManager.Settings.playerProfiles;
             playerCount = playerCount > 0 ? playerCount : profiles.Length;
@@ -94,5 +95,11 @@ namespace Managers
         }
 
 
+        public Task InitAsync()
+        {
+            var players = PlayerSettingsManager.Settings.playerCount;
+            InitPlayers(players);
+            return Task.CompletedTask;
+        }
     }
 }
