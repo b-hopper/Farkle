@@ -6,168 +6,172 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-public class FarkleGame : Singleton<FarkleGame>
+namespace Managers
 {
-#region UnityEvents
-
-    /// <summary>
-    /// Event invoked when the player starts rolling the dice
-    /// Used to trigger animations
-    /// Argument: duration of the animation
-    /// </summary>
-    public UnityEvent<float> OnRollDiceStart;
-    
-    public UnityEvent OnRollDiceFinish;
-    
-    public UnityEvent OnFarkle;
-    public UnityEvent OnTurnEnd;
-    public UnityEvent OnDiceHeld;
-    public UnityEvent OnGameStart;
-    
-    public UnityEvent<int> OnSelectDice;
-    public UnityEvent<int> OnTurnScoreUpdated;
-    
-#endregion
-
-    public bool InputLock => _inputLock;
-
-    private bool _inputLock = false; // Lock input while animations are playing
-    
-    
-    public void RollDice()
+    public class FarkleGame : Singleton<FarkleGame>
     {
-        if (_inputLock)
-        {
-            return;
-        }
-        
-        if (!CanRollDice())
-        {
-            return;
-        }
-        
-        LockInput();
-        
-        int score = DiceManager.Instance.HoldSelectedDiceAndScore();
-        OnTurnScoreUpdated.Invoke(score);
+        #region UnityEvents
 
-        DOTween.Sequence()
-            .AppendCallback(() => OnRollDiceStart.Invoke(1f))
-            .AppendInterval(1f)
-            .AppendCallback(() =>
+        /// <summary>
+        /// Event invoked when the player starts rolling the dice
+        /// Used to trigger animations
+        /// </summary>
+        /// <param name="duration">Duration of the roll animation</param>
+        public UnityEvent<float> OnRollDiceStart;
+
+        public UnityEvent OnRollDiceFinish;
+
+        public UnityEvent OnFarkle;
+        public UnityEvent OnTurnEnd;
+        public UnityEvent OnDiceHeld;
+        public UnityEvent OnGameStart;
+
+        public UnityEvent<int> OnSelectDice;
+        public UnityEvent<int> OnTurnScoreUpdated;
+
+        #endregion
+
+        public bool InputLock => _inputLock;
+
+        private bool _inputLock = false; // Lock input while animations are playing
+
+
+        public void RollDice()
+        {
+            if (_inputLock)
             {
-                OnRollDiceFinish.Invoke();
-                UnlockInput();
-        
-                if (DiceManager.Instance.CheckForFarkle())
-                {
-                    LockInput();
-                    DOTween.Sequence()
-                        .AppendCallback(() => UIManager.Instance.DoSplashText("Farkle!"))
-                        .AppendInterval(1.0f)
-                        .AppendCallback(() =>
-                        {
-                            if (UIManager.Instance.FlipScreen())
-                            {
-                                DOTween.Sequence()
-                                    .AppendInterval(1.5f)
-                                    .AppendCallback(() => EndTurn(true));
-                            }
-                            else
-                            {
-                                EndTurn(true);
-                            }
-                        });
-                }
-            });
-    }
+                return;
+            }
 
-    private bool CanRollDice()
-    {
-        // Can only roll dice if it's the first roll, or if there are already held dice
-        
-        if (DiceManager.Instance.FirstRoll)
-        {
-            return true;
-        }
-        
-        return DiceManager.Instance.Dice.Any(die => die.IsHeld || die.IsSelected) || ScoreManager.Instance.CurrentPlayer.Score.TurnScore > 0;
-    }
-
-    public void HoldSelectedDiceAndEndTurn()
-    {
-        if (_inputLock)
-        {
-            return;
-        }
-        
-        int score = DiceManager.Instance.HoldSelectedDiceAndScore();
-        OnTurnScoreUpdated.Invoke(score);
-        OnDiceHeld.Invoke();
-        
-        LockInput();
-
-        DOTween.Sequence()
-            .AppendCallback(() => UIManager.Instance.DoSplashText("Holding dice"))
-            .AppendInterval(1.0f)
-            .AppendCallback(() =>
+            if (!CanRollDice())
             {
-                if (UIManager.Instance.FlipScreen())
+                return;
+            }
+
+            LockInput();
+
+            int score = DiceManager.Instance.HoldSelectedDiceAndScore();
+            OnTurnScoreUpdated.Invoke(score);
+
+            DOTween.Sequence()
+                .AppendCallback(() => OnRollDiceStart.Invoke(1f))
+                .AppendInterval(1f)
+                .AppendCallback(() =>
                 {
-                    DOTween.Sequence()
-                        .AppendInterval(1.5f)
-                        .AppendCallback(() => EndTurn());
-                }
-                else
+                    OnRollDiceFinish.Invoke();
+                    UnlockInput();
+
+                    if (DiceManager.Instance.CheckForFarkle())
+                    {
+                        LockInput();
+                        DOTween.Sequence()
+                            .AppendCallback(() => UIManager.Instance.DoSplashText("Farkle!"))
+                            .AppendInterval(1.0f)
+                            .AppendCallback(() =>
+                            {
+                                if (UIManager.Instance.FlipScreen())
+                                {
+                                    DOTween.Sequence()
+                                        .AppendInterval(1.5f)
+                                        .AppendCallback(() => EndTurn(true));
+                                }
+                                else
+                                {
+                                    EndTurn(true);
+                                }
+                            });
+                    }
+                });
+        }
+
+        private bool CanRollDice()
+        {
+            // Can only roll dice if it's the first roll, or if there are already held dice
+
+            if (DiceManager.Instance.FirstRoll)
+            {
+                return true;
+            }
+
+            return DiceManager.Instance.Dice.Any(die => die.IsHeld || die.IsSelected) ||
+                   ScoreManager.Instance.CurrentPlayer.Score.TurnScore > 0;
+        }
+
+        public void HoldSelectedDiceAndEndTurn()
+        {
+            if (_inputLock)
+            {
+                return;
+            }
+
+            int score = DiceManager.Instance.HoldSelectedDiceAndScore();
+            OnTurnScoreUpdated.Invoke(score);
+            OnDiceHeld.Invoke();
+
+            LockInput();
+
+            DOTween.Sequence()
+                .AppendCallback(() => UIManager.Instance.DoSplashText("Holding dice"))
+                .AppendInterval(1.0f)
+                .AppendCallback(() =>
                 {
-                    EndTurn();
-                }
-            });
-    }
-
-    private void EndTurn(bool farkle = false)
-    {
-        if (farkle)
-        {
-            ScoreManager.Instance.SetBottomFeed(0);
-            OnFarkle.Invoke();
+                    if (UIManager.Instance.FlipScreen())
+                    {
+                        DOTween.Sequence()
+                            .AppendInterval(1.5f)
+                            .AppendCallback(() => EndTurn());
+                    }
+                    else
+                    {
+                        EndTurn();
+                    }
+                });
         }
-        
-        OnTurnEnd.Invoke();
-        UnlockInput();
-    }
 
-    public void SelectDie(int index)
-    {
-        if (_inputLock)
+        private void EndTurn(bool farkle = false)
         {
-            return;
+            if (farkle)
+            {
+                ScoreManager.Instance.SetBottomFeed(0);
+                OnFarkle.Invoke();
+            }
+
+            OnTurnEnd.Invoke();
+            UnlockInput();
         }
-        
-        DiceManager.Instance.SelectDie(index);
-        OnSelectDice.Invoke(index);
-    }
-    
-    public void LockInput()
-    {
-        _inputLock = true;
-    }
 
-    public void UnlockInput()
-    {
-        _inputLock = false;
-    }
+        public void SelectDie(int index)
+        {
+            if (_inputLock)
+            {
+                return;
+            }
 
-    public void NewGame()
-    {
-        DiceManager.Instance.ResetDice();
-        TurnManager.Instance.Initialize();
-        
-        OnGameStart.Invoke();
-    }
-    
-    public void ReturnToMainMenu()
-    {
-        // TODO once the main menu is implemented
+            DiceManager.Instance.SelectDie(index);
+            OnSelectDice.Invoke(index);
+        }
+
+        public void LockInput()
+        {
+            _inputLock = true;
+        }
+
+        public void UnlockInput()
+        {
+            _inputLock = false;
+        }
+
+        public void NewGame()
+        {
+            DiceManager.Instance.ResetDice();
+            TurnManager.Instance.Initialize();
+
+            OnGameStart.Invoke();
+        }
+
+        public void ReturnToMainMenu()
+        {
+            // TODO once the main menu is implemented
+        }
     }
 }

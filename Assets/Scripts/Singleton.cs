@@ -2,31 +2,31 @@
 
 public class Singleton<T> : UnityEngine.MonoBehaviour where T : Singleton<T>
 {
-    public static T Instance { get; private set; }
-    
-    [SerializeField] [Tooltip("This field is used to ensure the singleton instance is not destroyed on scene load.")]
-    private bool _dontDestroyOnLoad = true;
-    
-    protected virtual void Awake()
-    {
-        if (Instance == null)
+    private static T _instance;
+    public static T Instance {
+        get
         {
-            if (gameObject == null)
+            if (_instance == null)
             {
-                FarkleLogger.LogError($"Singleton instance cannot be null: {typeof(T).Name}");
-                return;
+                _instance = FindFirstObjectByType<T>();
+                if (_instance == null)
+                {
+                    if (thisObject == null)
+                    {
+                        thisObject = new GameObject(typeof(T).Name);
+                        thisObject.AddComponent<T>();
+                    }
+
+                    _instance = thisObject.GetComponent<T>();
+                    thisObject.transform.SetParent(null, false);
+                    DontDestroyOnLoad(thisObject);
+                }
             }
-            
-            Instance = (T)this;
-            transform.SetParent(null, false);
-            if (_dontDestroyOnLoad)
-            {
-                DontDestroyOnLoad(gameObject);
-            }
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+
+            return _instance;
+        } 
+        private set => _instance = value;
     }
+
+    private static GameObject thisObject;
 }

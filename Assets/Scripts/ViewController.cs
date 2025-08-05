@@ -1,4 +1,5 @@
 using System;
+using Managers;
 using UnityEngine;
 
 public class ViewController : Singleton<ViewController>
@@ -6,10 +7,8 @@ public class ViewController : Singleton<ViewController>
     [SerializeField] public DieView[] dieViews;
     [SerializeField] private float rollDiceVariation = 0.25f;
     
-    protected override void Awake()
+    protected void Awake()
     {
-        base.Awake();
-        
         if (dieViews.Length == 0)
         {
             FarkleLogger.LogError("No DieViews found.");

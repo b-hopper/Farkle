@@ -1,23 +1,27 @@
-﻿using TMPro;
+﻿using Managers;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerUIWidget : FarkleUIElement
+namespace UI
 {
-    [SerializeField] private TextMeshProUGUI nameText;
-    [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private Image highlightBackground;
-
-    public void Setup(Player player, bool highlight)
+    public class PlayerUIWidget : FarkleUIElement
     {
-        if (player == null) return;
+        [SerializeField] private TextMeshProUGUI nameText;
+        [SerializeField] private TextMeshProUGUI scoreText;
+        [SerializeField] private Image highlightBackground;
 
-        nameText.text = player.Name;
-        scoreText.text = player.Score.Score.ToString();
-        
-        if (highlightBackground != null)
+        public void Setup(Player player, bool highlight)
         {
-            highlightBackground.enabled = highlight;
+            if (player == null) return;
+
+            nameText.text = player.Name;
+            scoreText.text = player.Score.Score.ToString();
+
+            if (highlightBackground != null)
+            {
+                highlightBackground.enabled = highlight;
+            }
         }
     }
 }
