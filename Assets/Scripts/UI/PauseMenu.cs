@@ -1,3 +1,4 @@
+using Managers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,13 +27,13 @@ namespace UI
 
         public void ResumeGame()
         {
-            pauseMenuUIObj.gameObject.SetActive(false);
+            Hide();
         }
 
         public void MainMenu()
         {
-            // No-op for now
-            FarkleLogger.Log("Main Menu button clicked. Implement scene loading here.");
+            FarkleGame.Instance.ReturnToMainMenu();
+            Hide();
         }
 
         public void Options()

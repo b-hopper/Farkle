@@ -36,7 +36,6 @@ namespace Managers
 
         private void Start()
         {
-
             InitDelegates();
 
             if (_startGameOnAwake)

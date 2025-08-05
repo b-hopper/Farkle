@@ -1,21 +1,41 @@
 using System;
 using Managers;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.Serialization;
 
 public class ViewController : Singleton<ViewController>
 {
-    [SerializeField] public DieView[] dieViews;
-    [SerializeField] private float rollDiceVariation = 0.25f;
+    public DiceView[] dieViews;
+    [SerializeField] Transform diceParent;
+    [SerializeField] DiceView diceViewPrefab;
     
-    protected void Awake()
-    {
-        if (dieViews.Length == 0)
-        {
-            FarkleLogger.LogError("No DieViews found.");
-        }
-    }
+    [SerializeField] private float rollDiceVariation = 0.25f;
 
     private void Start()
+    {
+        Addressables.LoadAssetAsync<GameObject>("DiceViewPrefab").Completed += handle =>
+        {
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                handle.Result.TryGetComponent(out diceViewPrefab);
+
+                if (diceViewPrefab == null)
+                {
+                    FarkleLogger.LogError("DiceView prefab does not contain a DiceView component.");
+                    return;
+                }
+                
+                Initialize();
+            }
+            else
+            {
+                FarkleLogger.LogError("Failed to load DiceView prefab from Addressables.");
+            }
+        };    
+    }
+
+    private void Initialize()
     {
         InitDelegates();
         InitDiceViews();
@@ -54,8 +74,37 @@ public class ViewController : Singleton<ViewController>
     
     private void InitDiceViews()
     {
-        for (var i = 0; i < dieViews.Length; i++)
+        if (diceParent == null)
         {
+            // Attempt to find the parent object if not set
+            diceParent = GameObject.Find("DiceParent")?.transform;
+            if (diceParent == null)
+            {
+                FarkleLogger.LogError("DiceParent not found in the scene.");
+                return;
+            }
+        }
+
+        if (diceViewPrefab == null)
+        {
+            FarkleLogger.LogError("DieView prefab is not set in the ViewController.");
+            return;
+        }
+        
+        if (diceParent.childCount > 0)
+        {
+            // Clear existing die views if any
+            foreach (Transform child in diceParent)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        
+        dieViews = new DiceView[DiceManager.Instance.Dice.Length];
+        
+        for (var i = 0; i < DiceManager.Instance.Dice.Length; i++)
+        {
+            dieViews[i] = Instantiate(diceViewPrefab, diceParent);
             dieViews[i].SetDice(DiceManager.Instance.Dice[i]);
         }
     }

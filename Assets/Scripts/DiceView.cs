@@ -2,17 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Managers;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
-public class DieView : MonoBehaviour
+public class DiceView : MonoBehaviour
 {
     [SerializeField] private Sprite[] dieFaces;
     [SerializeField] private Sprite noneSprite;
-    [SerializeField] private Image dieImage;
+    [SerializeField] private Image diceImage;
     [SerializeField] private GameObject selectedIndicator;
     [SerializeField] private GameObject heldIndicator;
     
@@ -33,6 +35,20 @@ public class DieView : MonoBehaviour
         {
             FarkleLogger.LogError("DieView not found in ViewController.");
         }
+
+        var button = GetComponent<Button>();
+        
+        if (button != null)
+        {
+            button.onClick.AddListener(() => 
+            {
+                FarkleGame.Instance.SelectDie(_index);
+            });
+        }
+        else
+        {
+            FarkleLogger.LogError("DieView::Start - Button component not found on DieView.");
+        }
     }
 
     public void SetFaceValue(int value)
@@ -42,16 +58,16 @@ public class DieView : MonoBehaviour
             SetDebugText(value.ToString());
         }
         
-        if (dieImage == null || 
+        if (diceImage == null || 
             dieFaces.Length == 0 || 
             value < 1 || 
             value > dieFaces.Length)
         {
-            dieImage.sprite = noneSprite;
+            diceImage.sprite = noneSprite;
             return;
         }
         
-        dieImage.sprite = dieFaces[value - 1];
+        diceImage.sprite = dieFaces[value - 1];
     }
     
     private void SetDebugText(string text)
@@ -108,27 +124,27 @@ public class DieView : MonoBehaviour
 
     public void DoRollDiceAnimation(float duration)
     {
-        if (dieImage == null)
+        if (diceImage == null)
         {
             return;
         }
         
         StartCoroutine(DoRollDiceImageChange(duration * 0.5f));
         
-        dieImage.transform.rotation = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360));
+        diceImage.transform.rotation = Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360));
         
         int fullRotations = UnityEngine.Random.Range(1, 4);
-        dieImage.transform.DORotate(new Vector3(0, 0, 360 * fullRotations), duration, RotateMode.FastBeyond360)
+        diceImage.transform.DORotate(new Vector3(0, 0, 360 * fullRotations), duration, RotateMode.FastBeyond360)
             .SetEase(Ease.OutQuint);
         
-        dieImage.transform.DOShakePosition(duration, 50f, 10, 180, false)
+        diceImage.transform.DOShakePosition(duration, 50f, 10, 180, false)
             .SetEase(Ease.OutQuint) 
-            .OnComplete(() => dieImage.transform.DOLocalMove(Vector3.zero, 0.1f));
+            .OnComplete(() => diceImage.transform.DOLocalMove(Vector3.zero, 0.1f));
         
-        dieImage.transform.localScale = Vector3.one * 0.5f;
-        dieImage.transform.DOScale(new Vector3(1f, 1f, 1f), duration)
+        diceImage.transform.localScale = Vector3.one * 0.5f;
+        diceImage.transform.DOScale(new Vector3(1f, 1f, 1f), duration)
             .SetEase(Ease.OutQuint)
-            .OnComplete(() => dieImage.transform.DOScale(Vector3.one, 0.1f));
+            .OnComplete(() => diceImage.transform.DOScale(Vector3.one, 0.1f));
     }
     
     private IEnumerator DoRollDiceImageChange(float duration)

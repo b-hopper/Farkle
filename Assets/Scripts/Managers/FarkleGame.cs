@@ -35,6 +35,11 @@ namespace Managers
 
         private bool _inputLock = false; // Lock input while animations are playing
 
+        private void Awake()
+        {
+            transform.SetParent(null);
+            DontDestroyOnLoad(this);
+        }
 
         public void RollDice()
         {
@@ -171,7 +176,7 @@ namespace Managers
 
         public void ReturnToMainMenu()
         {
-            // TODO once the main menu is implemented
+            FarkleSceneManager.Instance.LoadMainMenu();
         }
     }
 }

@@ -1,23 +1,38 @@
 ﻿using System;
 using UnityEngine;
 using System.IO;
+using UnityEngine.AddressableAssets;
+using Utils;
 
 namespace Managers
 {
     public class PlayerSettingsManager : Singleton<PlayerSettingsManager>
     {
-        [SerializeField] private PlayerSettings _settings;
+        [ReadOnly] private PlayerSettings _settings;
         public static PlayerSettings Settings => Instance._settings;
 
         private static string SavePath => Path.Combine(Application.persistentDataPath, "player_profiles.json");
 
-        protected void Awake()
+        protected async void Awake()
         {
-            if (_settings == null)
+            Addressables.LoadAssetAsync<ScriptableObject>("PlayerSettings_Default").Completed += handle =>
             {
-                FarkleLogger.LogError("Player settings are not set. Please assign them in the inspector.");
-            }
+                if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                {
+                    SetSettings(handle.Result as PlayerSettings);
 
+                    if (_settings == null)
+                    {
+                        FarkleLogger.LogError("PlayerSettings_Default does not contain a PlayerSettings component.");
+                        return;
+                    }
+                }
+                else
+                {
+                    FarkleLogger.LogError("Failed to load PlayerSettings_Default from Addressables.");
+                }
+            };    
+            
             LoadProfiles();
         }
 
@@ -31,7 +46,6 @@ namespace Managers
 
             _settings = newSettings;
             LoadProfiles();
-            FarkleLogger.Log("Player settings updated successfully.");
         }
 
         public void SaveProfiles()

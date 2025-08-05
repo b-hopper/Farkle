@@ -1,20 +1,35 @@
 ﻿using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Serialization;
+using Utils;
 
 namespace Managers
 {
     public class GameSettingsManager : Singleton<GameSettingsManager>
     {
-        [SerializeField] private GameSettings _settings;
+        [ReadOnly] private GameSettings _settings;
 
         public static GameSettings Settings => Instance._settings;
 
         protected void Awake()
         {
-            if (_settings == null)
+            Addressables.LoadAssetAsync<ScriptableObject>("GameSettings_LowScore").Completed += handle =>
             {
-                FarkleLogger.LogError("Default game settings are not set. Please assign them in the inspector.");
-            }
+                if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                {
+                    SetSettings(handle.Result as GameSettings);
+
+                    if (_settings == null)
+                    {
+                        FarkleLogger.LogError("GameSettings_Default does not contain a GameSettings component.");
+                        return;
+                    }
+                }
+                else
+                {
+                    FarkleLogger.LogError("Failed to load GameSettings_Default from Addressables.");
+                }
+            };    
         }
 
         public void SetSettings(GameSettings newSettings)
@@ -26,7 +41,6 @@ namespace Managers
             }
 
             _settings = newSettings;
-            FarkleLogger.Log("Game settings updated successfully.");
         }
     }
 }

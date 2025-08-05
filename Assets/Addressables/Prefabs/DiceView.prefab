@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1009720357427183225}
   - component: {fileID: 149243533496087233}
   m_Layer: 5
-  m_Name: Die
+  m_Name: DiceView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -101,7 +101,7 @@ MonoBehaviour:
   - {fileID: 7666094151672579548, guid: 5a68de91860cfca44ac157663d2d3378, type: 3}
   - {fileID: 5256393689549963901, guid: 5a68de91860cfca44ac157663d2d3378, type: 3}
   noneSprite: {fileID: -4298056599330406823, guid: 356b7be29d88a9f48a5d7ec80db67b2e, type: 3}
-  dieImage: {fileID: 728496826514932217}
+  diceImage: {fileID: 728496826514932217}
   selectedIndicator: {fileID: 8972651523886932465}
   heldIndicator: {fileID: 3437343613215606436}
   debugMode: 0
@@ -149,19 +149,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7986105929444169446}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: DieView, Assembly-CSharp
-        m_MethodName: 
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &3334327642222911354
 GameObject:
   m_ObjectHideFlags: 0
