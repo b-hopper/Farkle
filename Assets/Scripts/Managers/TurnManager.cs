@@ -9,10 +9,8 @@ namespace Managers
     {
         public int CurrentPlayerIndex => _currentPlayerIndex;
 
-        [SerializeField] private int _playerCount = 2;
-
-        [SerializeField] private bool _startGameOnAwake = true;
-
+        private int _playerCount = 2;
+        
         private int _currentPlayerIndex;
 
         public TurnFlowState CurrentState => _currentState;
@@ -38,10 +36,6 @@ namespace Managers
         {
             InitDelegates();
 
-            if (_startGameOnAwake)
-            {
-                Initialize();
-            }
         }
 
         public void Initialize()
@@ -63,6 +57,7 @@ namespace Managers
 
         private void OnDiceHeld()
         {
+            ScoreManager.Instance.OnDiceHeld();
             SetTurnFlowState(TurnFlowState.END_TURN);
         }
 
@@ -81,6 +76,9 @@ namespace Managers
         public void GameWinningScoreReached()
         {
             IsGameEnding = true;
+            PlayerManager.Instance.CurrentPlayer.HasTakenFinalTurn = true;
+            
+            
             UIManager.Instance.DoSplashText(
                 $"{PlayerManager.Instance.CurrentPlayer.Name} has reached {ScoreManager.Instance.ScoreToWin} points!\n" +
                 $"One more round to finish the game...");
@@ -135,11 +133,19 @@ namespace Managers
 
         private void OnInitGameFlowEntered()
         {
+            ResetGame();
+
+            SetTurnFlowState(TurnFlowState.START_TURN);
+            FarkleLogger.Log($"(TurnManager::OnInitGameFlowEntered) Initialized with {_playerCount} players.");
+        }
+
+        private void ResetGame()
+        {
             _playerCount = PlayerSettingsManager.Settings.playerCount;
             _currentPlayerIndex = 0;
             IsGameEnding = false;
-
-            SetTurnFlowState(TurnFlowState.START_TURN);
+            
+            PlayerManager.Instance.InitPlayers(_playerCount);
         }
 
 
@@ -202,7 +208,6 @@ namespace Managers
                 }
             }
 
-            UIManager.Instance.UpdateUI();
         }
 
         private void OnGameOverFlowEntered()

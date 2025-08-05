@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GameSettings_LowScore
   m_EditorClassIdentifier: 
   targetScore: 100
+  breakInScore: 50
   pointsForStraight: 1500
   pointsForThreePairs: 1500
   pointsForTwoTriplets: 2500

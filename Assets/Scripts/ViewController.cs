@@ -50,6 +50,7 @@ public class ViewController : Singleton<ViewController>
         FarkleGame.Instance.OnFarkle.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnTurnEnd.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnDiceHeld.AddListener(UpdateDiceView);
+        FarkleGame.Instance.OnGameStart.AddListener(UpdateDiceView);
     }
 
     private void DoRollDiceAnimation(float duration)

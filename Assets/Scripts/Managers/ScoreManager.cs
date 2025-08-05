@@ -15,7 +15,8 @@ namespace Managers
             public int TurnScore;
             public int SelectedScore;
 
-            public bool BrokenIn => (Score >= 500 || TurnScore + SelectedScore >= 500);
+            public bool BrokenIn => (Score >= GameSettingsManager.Settings.breakInScore 
+              || TurnScore + SelectedScore >= GameSettingsManager.Settings.breakInScore);
 
             public PlayerScore(int score, int turnScore)
             {
@@ -45,9 +46,14 @@ namespace Managers
 
         private void Start()
         {
+            InitDelegates();
+        }
+        
+        private void InitDelegates()
+        {
             FarkleGame.Instance.OnFarkle.AddListener(OnFarkle);
             FarkleGame.Instance.OnTurnScoreUpdated.AddListener(AddTurnScore);
-            FarkleGame.Instance.OnDiceHeld.AddListener(OnDiceHeld);
+            // FarkleGame.Instance.OnDiceHeld.AddListener(OnDiceHeld);
         }
 
         private void OnFarkle()
@@ -55,7 +61,7 @@ namespace Managers
             ResetTurnScore();
         }
 
-        private void OnDiceHeld()
+        public void OnDiceHeld()
         {
             AddTurnScoreToTotal();
         }

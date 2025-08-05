@@ -67,8 +67,8 @@ namespace UI
 
         public void OnRestartButtonClicked()
         {
-            Hide();
             FarkleGame.Instance.NewGame();
+            Hide();
         }
 
         public void OnMainMenuButtonClicked()

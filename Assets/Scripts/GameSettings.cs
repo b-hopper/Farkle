@@ -6,6 +6,9 @@ public class GameSettings : ScriptableObject
     [Header("Game Win Conditions")]
     [Tooltip("Score required to win the game.")]
     public int targetScore = 10000;
+    
+    [Tooltip("Score the player must reach to break in.")]
+    public int breakInScore = 500;
 
     [Header("Special Combo Points")]
     [Tooltip("Points awarded for a straight (1-6).")]
