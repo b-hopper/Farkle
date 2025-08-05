@@ -85,7 +85,7 @@ Be the first player to reach the target score (default: 10,000 points).
 - Dynamic button states based on game phase
 - Singleton architecture for managers (ScoreManager, TurnManager, DiceManager, etc.)
 
-### 🟡 In Progress / Needs Completion
+### 🟡 In Progress
 
 - Main Menu, Options Menu, and Pause Menu
 - Game Over Screen with full scoreboard
@@ -93,7 +93,7 @@ Be the first player to reach the target score (default: 10,000 points).
 - Sound and music integration
 - Tutorial / onboarding
 
-### 🔜 Planned Features (Portfolio Boost)
+### 🔜 Planned Features
 
 - 🔥 Backend stats tracking:
   - Wins, games played, avg score, Farkles, high turn
@@ -167,36 +167,177 @@ Be the first player to reach the target score (default: 10,000 points).
 - Maps dice model data (`Dice[]`) to visual prefab components (`DieView[]`)
 - Handles animated dice rolling with variation via DOTween
 
-### BackendService (Planned)
+## 🛡️ Backend Architecture
 
-- Singleton MonoBehaviour for RESTful backend calls
-- Posts JSON payloads at game end for session tracking
-- Retrieves leaderboard, player profile, and stats history
-- Integrates with Google Play Games user ID for identity/auth
+### 🔧 Backend Overview
 
-### Google Play Integration
+The backend handles persistent player data for statistics, game history, and leaderboards. While gameplay is limited to local pass-and-play, each user (Google account or anonymous ID) can maintain multiple local player profiles. These profiles track individual stats and are tied to a single user account.
 
-- Uses Google Play Games SDK to authenticate user
-- Maps player profile to authenticated Google user ID
-- Stores and retrieves cross-device stats securely
-- Future: unlock achievements, sync cloud saves
+The backend system is built around a RESTful API with a PostgreSQL database. Communication between the Unity client and the server is done via JSON over HTTPS.
 
-### Data Flow (Simplified)
+---
+
+### 👥 User and Player Model
+
+- **User**
+  - Represents the logged-in Google account or an anonymous installation
+  - Identified by Google ID or locally-generated UUID
+  - Can manage multiple `PlayerProfiles`
+
+- **PlayerProfile**
+  - Represents a single local player (e.g., “Dad”, “Friend 2”)
+  - Stores persistent stats like score history, win count, and Farkles
+  - Associated with a single User
+
+---
+
+### 🗓️ Data Models
+
+#### `Users` Table
+
+| Field      | Type              | Description                         |
+|-----------|-------------------|-------------------------------------|
+| user_id   | UUID / Google ID  | Primary key                         |
+| login_type| string            | `"google"` or `"anonymous"`         |
+| created_at| timestamp         | Timestamp when user was registered  |
+
+#### `PlayerProfiles` Table
+
+| Field        | Type   | Description                              |
+|--------------|--------|------------------------------------------|
+| player_id    | UUID   | Primary key                              |
+| user_id      | FK     | References a `Users` row                 |
+| display_name | string | Name of the local player                 |
+| created_at   | timestamp | Timestamp of creation                |
+
+#### `Games` Table
+
+| Field     | Type     | Description                      |
+|-----------|----------|----------------------------------|
+| game_id   | UUID     | Unique game session ID           |
+| user_id   | FK       | User who played the session      |
+| played_at | timestamp| When the game was completed      |
+
+#### `GameResults` Table
+
+| Field      | Type     | Description                        |
+|------------|----------|------------------------------------|
+| result_id  | UUID     | Primary key                        |
+| game_id    | FK       | References a `Games` row           |
+| player_id  | FK       | References a `PlayerProfiles` row  |
+| score      | int      | Final score for the player         |
+| turns_taken| int      | Number of turns taken              |
+| farkles    | int      | Number of Farkles                  |
+| won        | bool     | True if this player won            |
+
+---
+
+### 🔌 API Endpoints
+
+#### `POST /game-result`
+Submits a completed match with player results.
+
+```json
+{
+  "user_id": "abc123",
+  "game": {
+    "played_at": "2025-08-05T12:00:00Z",
+    "results": [
+      {
+        "player_id": "p1",
+        "score": 9800,
+        "turns": 8,
+        "farkles": 2,
+        "won": true
+      },
+      {
+        "player_id": "p2",
+        "score": 8450,
+        "turns": 9,
+        "farkles": 3,
+        "won": false
+      }
+    ]
+  }
+}
+```
+
+#### `GET /player-stats?player_id=p1`
+Returns persistent stats for a single player profile.
+
+#### `GET /leaderboard?sort=avg_score`
+Returns a leaderboard sorted by `avg_score`, `wins`, or `total_points`.
+
+#### `GET /user-players?user_id=abc123`
+Returns all `PlayerProfiles` associated with the user.
+
+#### `POST /create-player`
+Creates a new player profile under a user account.
+
+```json
+{
+  "user_id": "abc123",
+  "display_name": "Grandma"
+}
+```
+
+---
+
+### 🔐 Identity Management
+
+- Uses **Google Play Games Services** if available
+- Falls back to a locally-stored **UUID** for anonymous users
+- All data is tied to the `user_id` (either UUID or Google ID)
+- No personally identifiable info (PII) is stored
+- The Unity client is responsible for persisting and reusing the `user_id`
+
+---
+
+### ⚖️ Security and Best Practices
+
+- All backend requests require HTTPS
+- Input validation and schema checks are applied to all endpoints
+- Rate limiting per `user_id` to prevent abuse
+- All UUIDs are generated on the client or server using secure random generators
+- Sensitive operations (e.g., deleting players) require additional verification tokens
+
+---
+
+### 🌐 Hosting Considerations
+
+The backend can be deployed to a lightweight PaaS such as:
+- **Render** or **Railway** for Node.js/FastAPI
+- **Google Cloud Run** if leveraging Google Auth
+- **Supabase** or **PocketBase** for integrated auth + DB as a quick backend
+
+Database hosting can use:
+- **Supabase PostgreSQL**
+- **Neon.tech**
+- **ElephantSQL**
+
+---
+
+### ☁️ Data Flow
 
 ```
-[User] → [Unity UI] → [FarkleGame] → [TurnManager / DiceManager / ScoreManager]
-                                  ↓
-                           [UIManager / ViewController]
-                                  ↓
-                            [GameOver] → [BackendService] → [Web API]
-                                                     ↑
-                                            [Google Play Auth]
+[Game Ends]
+   ↓
+[Unity BackendService builds payload]
+   ↓
+[POST /game-result]
+   ↓
+[Backend stores session + results]
+   ↓
+[Client fetches player stats, history, and leaderboards]
 ```
 
-### Persistence
+---
 
-- Player profile saved locally in `PlayerPrefs` or file
-- Extended stats and match history pushed to backend via REST
-- Backend stores game results in relational DB (e.g., PostgreSQL)
-- Support for anonymous ID fallback or full Google Play account linkage..
+### 🔮 Future Extensions
+
+- Add `achievements` table for milestone tracking
+- Implement JWT-based sessions for Google users
+- Add `/delete-player` or `/rename-player` endpoints
+- Add filtering to game history (`GET /player-history?player_id=p1&page=2`)
+- Add weekly/monthly leaderboards with `created_at` filtering
 
