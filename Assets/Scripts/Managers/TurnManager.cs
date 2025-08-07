@@ -1,7 +1,4 @@
-using System.Linq;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Serialization;
+using DG.Tweening;
 
 namespace Managers
 {
@@ -206,6 +203,14 @@ namespace Managers
                 {
                     SetTurnFlowState(TurnFlowState.GAME_OVER);
                 }
+                else
+                {
+                    DOTween.Sequence()
+                        .AppendInterval(2f)
+                        .OnComplete(NextPlayer);
+                }
+            }
+            else
             }
 
         }

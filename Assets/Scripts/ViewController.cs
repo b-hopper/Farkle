@@ -1,8 +1,6 @@
-using System;
 using Managers;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Serialization;
 
 public class ViewController : Singleton<ViewController>
 {

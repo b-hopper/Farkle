@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UI;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Managers
@@ -69,7 +67,7 @@ namespace Managers
         public void UpdateUI()
         {
             UpdatePlayerUI();
-            UpdateButtonUI(TurnManager.Instance.CurrentState);
+            UpdateButtonUI();
         }
 
         private void UpdatePlayerUI()
@@ -97,8 +95,10 @@ namespace Managers
 
         #region Button UI
 
-        private void UpdateButtonUI(TurnManager.TurnFlowState state)
+        private void UpdateButtonUI()
         {
+            TurnManager.TurnFlowState state = TurnManager.Instance.CurrentState;
+            
             ClearButtonUI();
 
             switch (state)
@@ -288,7 +288,7 @@ namespace Managers
                     break;
 
                 case TurnManager.TurnFlowState.END_TURN:
-                    TurnManager.Instance.NextPlayer();
+                    //TurnManager.Instance.NextPlayer();
                     break;
 
                 case TurnManager.TurnFlowState.GAME_OVER:
