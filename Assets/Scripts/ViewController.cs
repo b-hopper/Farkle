@@ -1,4 +1,4 @@
-using Managers;
+using Farkle.Managers;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 

@@ -4,7 +4,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Utils;
 
-namespace Managers
+namespace Farkle.Managers
 {
     public class GameSettingsManager : Singleton<GameSettingsManager>, IGameManager
     {
@@ -27,7 +27,7 @@ namespace Managers
         {
             DontDestroyOnLoad(this);
             
-            var handle = Addressables.LoadAssetAsync<ScriptableObject>("GameSettings_LowScore");
+            var handle = Addressables.LoadAssetAsync<GameSettings>("GameSettings_LowScore");
             await handle.Task;
 
             if (handle.Status == AsyncOperationStatus.Succeeded)

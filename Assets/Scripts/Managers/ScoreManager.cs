@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Managers
+namespace Farkle.Managers
 {
     public class ScoreManager : Singleton<ScoreManager>
     {

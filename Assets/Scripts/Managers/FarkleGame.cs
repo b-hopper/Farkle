@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-namespace Managers
+namespace Farkle.Managers
 {
     public class FarkleGame : Singleton<FarkleGame>
     {

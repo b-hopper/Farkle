@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Managers
+namespace Farkle.Managers
 {
     /// <summary>
     /// Interface implemented by all game managers that require asynchronous

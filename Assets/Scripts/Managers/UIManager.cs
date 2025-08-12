@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
-using UI;
+using Farkle.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Managers
+namespace Farkle.Managers
 {
     public class UIManager : Singleton<UIManager>
     {

@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Managers
+namespace Farkle.Managers
 {
     [Serializable]
     public class Player

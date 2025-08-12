@@ -1,7 +1,7 @@
-﻿using Managers;
+﻿using Farkle.Managers;
 using UnityEngine;
 
-namespace UI
+namespace Farkle.UI
 {
     public class MainMenu : MonoBehaviour
     {

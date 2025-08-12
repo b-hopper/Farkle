@@ -1,9 +1,9 @@
-﻿using Managers;
+﻿using Farkle.Managers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI
+namespace Farkle.UI
 {
     public class PlayerUIWidget : FarkleUIElement
     {

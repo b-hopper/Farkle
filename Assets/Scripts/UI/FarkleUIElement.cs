@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UI
+namespace Farkle.UI
 {
     public class FarkleUIElement : MonoBehaviour
     {

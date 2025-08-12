@@ -4,7 +4,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 
-namespace Managers
+namespace Farkle.Managers
 {
     public class FarkleSceneManager : Singleton<FarkleSceneManager>
     {

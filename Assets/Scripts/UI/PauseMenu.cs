@@ -1,8 +1,8 @@
-using Managers;
+using Farkle.Managers;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace UI
+namespace Farkle.UI
 {
     public class PauseMenu : FarkleUIElement
     {

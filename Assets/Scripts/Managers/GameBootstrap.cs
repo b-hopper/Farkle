@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Managers
+namespace Farkle.Managers
 {
     /// <summary>
     /// Responsible for orchestrating the initialization of all game managers

@@ -1,6 +1,6 @@
 using DG.Tweening;
 
-namespace Managers
+namespace Farkle.Managers
 {
     public class TurnManager : Singleton<TurnManager>
     {
@@ -211,8 +211,11 @@ namespace Managers
                 }
             }
             else
+            {
+                DOTween.Sequence()
+                    .AppendInterval(2f)
+                    .OnComplete(NextPlayer);
             }
-
         }
 
         private void OnGameOverFlowEntered()

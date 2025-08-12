@@ -1,8 +1,8 @@
-﻿using Managers;
+﻿using Farkle.Managers;
 using TMPro;
 using UnityEngine;
 
-namespace UI
+namespace Farkle.UI
 {
     public class GameOverScreen : FarkleUIElement
     {

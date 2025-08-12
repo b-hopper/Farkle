@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using Managers;
+using Farkle.Managers;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;

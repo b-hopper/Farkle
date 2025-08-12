@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Utils;
 
-namespace Managers
+namespace Farkle.Managers
 {
     public class PlayerSettingsManager : Singleton<PlayerSettingsManager>, IGameManager
     {
