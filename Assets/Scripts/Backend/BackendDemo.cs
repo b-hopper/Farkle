@@ -51,15 +51,21 @@ public class FarkleBackendDemo : MonoBehaviour
 
             // 4) Leaderboard
             var lb = await BackendService.GetLeaderboardAsync("avg_score");
-            FarkleLogger.Log($"Leaderboard rows: {lb.Count}");
-            foreach (var row in lb)
+            string leaderboardLog = $"Leaderboard rows: <color=green>{lb.Rows.Count}</color>";
+            foreach (var row in lb.Rows)
             {
-                FarkleLogger.Log($"Leaderboard -> {row.Rows[0].PlayerId} - {row.Rows[0].DisplayName} - Avg: {row.Rows[0].AvgScore}");
+                leaderboardLog += $"\n\t<color=yellow>Leaderboard</color> -> {row.PlayerId} - {row.DisplayName} - Avg: {row.AvgScore}";
             }
+            FarkleLogger.Log(leaderboardLog);
             
             // 5) List user players
             var players = await BackendService.GetUserPlayersAsync(Config.UserId);
-            FarkleLogger.Log($"User players: {players.Players?.Count ?? 0}");
+            string userPlayersLog = $"User players: <color=green>{players.Players.Count}</color>";
+            foreach (var player in players.Players)
+            {
+                userPlayersLog += $"\n\t<color=yellow>Player</color> -> {player.PlayerId} - {player.DisplayName}";
+            }
+            FarkleLogger.Log(userPlayersLog);
         }
         catch (System.Exception ex)
         {

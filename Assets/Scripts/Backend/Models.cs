@@ -53,7 +53,7 @@ namespace Farkle.Backend
         [JsonProperty("high_turn")]   public int HighTurn;
     }
 
-    public class LeaderboardRow
+    public class UserInfoRow
     {
         [JsonProperty("player_id")]   public string PlayerId;
         [JsonProperty("display_name")]public string DisplayName;
@@ -64,17 +64,11 @@ namespace Farkle.Backend
 
     public class LeaderboardResponse
     {
-        [JsonProperty("rows")] public List<LeaderboardRow> Rows;
+        [JsonProperty("rows")] public List<UserInfoRow> Rows;
     }
 
     public class UserPlayersResponse
     {
-        public class PlayerEntry
-        {
-            [JsonProperty("player_id")]   public string PlayerId;
-            [JsonProperty("display_name")]public string DisplayName;
-        }
-
-        [JsonProperty("players")] public List<PlayerEntry> Players;
+        [JsonProperty("players")] public List<UserInfoRow> Players;
     }
 }

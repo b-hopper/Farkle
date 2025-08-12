@@ -86,12 +86,12 @@ namespace Farkle.Backend
             return DeserializeOrThrow<PlayerStatsResponse>(res);
         }
 
-        public static async Task<List<LeaderboardResponse>> GetLeaderboardAsync(string sort = "avg_score")
+        public static async Task<LeaderboardResponse> GetLeaderboardAsync(string sort = "avg_score")
         {
             EnsureConfig();
             using var req = UnityWebRequest.Get(Url($"/leaderboard?sort={UnityWebRequest.EscapeURL(sort)}"));
             var res = await SendAsync(req);
-            return DeserializeOrThrow<List<LeaderboardResponse>>(res);
+            return DeserializeOrThrow<LeaderboardResponse>(res);
         }
 
 
