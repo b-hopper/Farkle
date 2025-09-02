@@ -12,10 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2769c7edb5af4aac9d4d27f8e9683bfd, type: 3}
   m_Name: GameSettings_Default
   m_EditorClassIdentifier: 
-  targetScore: 10000
-  pointsForStraight: 1500
-  pointsForThreePairs: 1500
-  pointsForTwoTriplets: 2500
+  targetScore: 31889
+  breakInScore: 500
+  combos:
+  - id: straight_1to6
+    displayName: Straight (1-6)
+    description: All faces 1-6 once
+    points: 1500
+    enabled: 1
+  - id: three_pairs
+    displayName: Three Pairs
+    description: Three pairs across six dice
+    points: 1500
+    enabled: 1
+  - id: two_triplets
+    displayName: Two Triplets
+    description: Two sets of three-of-a-kind
+    points: 2500
+    enabled: 1
   pointsMultiplierOfAKind: 100
   pointsPerOne: 100
   pointsPerFive: 50

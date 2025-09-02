@@ -246,25 +246,25 @@ namespace Farkle.Managers
             if (valueCounts.Count == 2 && valueCounts.All(x => x.Value == 3))
             {
 
-                return settings.pointsForTwoTriplets;
+                return settings.combos.First(x => x.id == "two_triplets").points;
             }
 
             // Check for 3 pairs
             if (valueCounts.Count == 3 && valueCounts.All(x => x.Value == 2))
             {
-                return settings.pointsForThreePairs;
+                return settings.combos.First(x => x.id == "three_pairs").points;
             }
 
             // Check for 3 pairs, but two of the pairs are the same
             if (valueCounts.Count == 2 && valueCounts.All(x => x.Value == 2 || x.Value == 4))
             {
-                return settings.pointsForThreePairs;
+                return settings.combos.First(x => x.id == "three_pairs").points;
             }
 
             // Check for a straight
             if (values.Distinct().OrderBy(x => x).SequenceEqual(new[] { 1, 2, 3, 4, 5, 6 }))
             {
-                return settings.pointsForStraight;
+                return settings.combos.First(x => x.id == "straight_1to6").points;
             }
 
             // Check for 4 of a kind
