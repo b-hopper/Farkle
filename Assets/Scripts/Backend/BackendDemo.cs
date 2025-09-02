@@ -11,6 +11,7 @@ public class FarkleBackendDemo : MonoBehaviour
     [SerializeField]
     private string DemoDisplayName = "Tester";
 
+    [ContextMenu("Run Demo")]
     async void Start()
     {
         if (Config == null)
@@ -21,17 +22,12 @@ public class FarkleBackendDemo : MonoBehaviour
 
         BackendService.Initialize(Config);
 
-        if (string.IsNullOrWhiteSpace(Config.UserId))
-        {
-            // In production, store this once (e.g., PlayerPrefs) or use Google Play Games ID.
-            Config.UserId = System.Guid.NewGuid().ToString();
-            FarkleLogger.Log($"Generated temp user_id: {Config.UserId}");
-        }
-
         try
         {
+            var userId = BackendService.GetUserId();
+            
             // 1) Create a player
-            var create = await BackendService.CreatePlayerAsync(Config.UserId, DemoDisplayName);
+            var create = await BackendService.CreatePlayerAsync(userId, DemoDisplayName);
             FarkleLogger.Log($"CreatePlayer -> player_id: {create.PlayerId}");
 
             // 2) Post a fake game result
@@ -42,7 +38,7 @@ public class FarkleBackendDemo : MonoBehaviour
                     Score = 10000, Turns = 9, Farkles = 2, Won = true
                 }
             };
-            var posted = await BackendService.PostGameResultAsync(Config.UserId, results);
+            var posted = await BackendService.PostGameResultAsync(userId, results);
             FarkleLogger.Log($"GameResult -> game_id: {posted.GameId}");
 
             // 3) Fetch stats
@@ -59,8 +55,8 @@ public class FarkleBackendDemo : MonoBehaviour
             FarkleLogger.Log(leaderboardLog);
             
             // 5) List user players
-            var players = await BackendService.GetUserPlayersAsync(Config.UserId);
-            string userPlayersLog = $"User players: <color=green>{players.Players.Count}</color>";
+            var players = await BackendService.GetUserPlayersAsync(userId);
+            string userPlayersLog = $"User [<color=red>{userId}</color>] players: <color=green>{players.Players.Count}</color>";
             foreach (var player in players.Players)
             {
                 userPlayersLog += $"\n\t<color=yellow>Player</color> -> {player.PlayerId} - {player.DisplayName}";

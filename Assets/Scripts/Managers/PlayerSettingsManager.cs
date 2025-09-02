@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.IO;
 using System.Threading.Tasks;
+using Farkle.Backend;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Utils;
@@ -79,7 +80,47 @@ namespace Farkle.Managers
         public async Task InitAsync()
         {
             DontDestroyOnLoad(this);
+
+            // Check if player profiles exist on backend
+            var userId = BackendService.GetUserId();
+            var players = BackendService.GetUserPlayersAsync(userId);
+            if (players.IsCompletedSuccessfully && players.Result.Players.Count > 0)
+            {
+                // If profiles exist, load them from backend
+                PlayerProfile[] loadedProfiles = new  PlayerProfile[players.Result.Players.Count];
+                for (int i = 0; i < players.Result.Players.Count; i++)
+                {
+                    loadedProfiles[i] = new PlayerProfile
+                    {
+                        playerId = players.Result.Players[i].PlayerId,
+                        playerName = players.Result.Players[i].DisplayName,
+                        gamesWon = players.Result.Players[i].Wins,
+                        totalScore = (int)players.Result.Players[i].TotalPoints,
+                    };
+                }
+                
+                // Overwrite existing profiles with loaded ones
+                ScriptableObject existingSettings = Addressables.LoadAssetAsync<ScriptableObject>("PlayerSettings").WaitForCompletion();
+                if (existingSettings is PlayerSettings existingPlayerSettings)
+                {
+                    existingPlayerSettings.playerProfiles = loadedProfiles;
+                    SetSettings(existingPlayerSettings);
+                }
+                
+                FarkleLogger.Log("Loaded player profiles from backend.");
+            }
+            else
+            {
+                // Otherwise, load default settings
+                FarkleLogger.Log("No player profiles found on backend, loading defaults.");
+                await LoadDefaultPlayerSettingsAsync();
+            }
             
+            LoadProfiles();
+        }
+
+        private async Task LoadDefaultPlayerSettingsAsync()
+        {
             var handle = Addressables.LoadAssetAsync<ScriptableObject>("PlayerSettings_Default");
             await handle.Task;
 

@@ -102,5 +102,23 @@ namespace Farkle.Backend
             var res = await SendAsync(req);
             return DeserializeOrThrow<UserPlayersResponse>(res);
         }
+
+        private static string _userId;
+        
+        /// <summary>
+        /// Gets the user ID for the current session.
+        /// If not set, gets Google Play Games ID or generates a new GUID.
+        /// </summary>
+        public static string GetUserId()
+        {
+            if (!string.IsNullOrEmpty(_userId))
+                return _userId;
+
+            EnsureConfig();
+
+            // TODO: Replace with actual Google Play Games ID retrieval
+            _userId = SystemInfo.deviceUniqueIdentifier;
+            return _userId;
+        }
     }
 }
