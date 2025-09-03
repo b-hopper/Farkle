@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2769c7edb5af4aac9d4d27f8e9683bfd, type: 3}
   m_Name: GameSettings_Default
   m_EditorClassIdentifier: 
-  targetScore: 31889
+  targetScore: 10000
   breakInScore: 500
   combos:
   - id: straight_1to6

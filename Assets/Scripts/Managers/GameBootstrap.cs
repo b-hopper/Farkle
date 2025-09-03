@@ -14,10 +14,10 @@ namespace Farkle.Managers
     /// </summary>
     public class GameBootstrap : MonoBehaviour
     {
-        private void Awake()
+        private async void Start()
         {
-            FarkleLogger.Log("GameBootstrap Awake");
-            Task.Run(InitializeAsync);
+            FarkleLogger.Log("GameBootstrap Start");
+            await InitializeAsync();
         }
 
         private async Task InitializeAsync()
@@ -32,7 +32,20 @@ namespace Farkle.Managers
             FarkleSceneManager.Instance.LoadMainMenu();
         }
 
-        private static async Task InitializeGameManagersAsync()
+        private async Task LoadBackendConfiguration()
+        {
+            FarkleLogger.Log("Loading BackendConfig from Addressables...");
+            var handle = Addressables.LoadAssetAsync<BackendConfig>("BackendConfig_Default");
+            await handle.Task;
+            if (handle.Status != AsyncOperationStatus.Succeeded)
+            {
+                FarkleLogger.LogError("Failed to load BackendConfig from Addressables.");
+                return;
+            }
+            BackendService.Initialize(handle.Result);
+        }
+        
+        private async Task InitializeGameManagersAsync()
         {
             FarkleLogger.Log("Initializing game managers...");
             var managers = new List<IGameManager>
@@ -43,8 +56,6 @@ namespace Farkle.Managers
                 // Add additional managers that need async initialization here
             };
 
-            FarkleLogger.Log("2 Initializing game managers...");
-            // Initialise managers sequentially (respecting dependencies)
             foreach (var manager in managers)
             {
                 if (manager != null)
@@ -53,29 +64,6 @@ namespace Farkle.Managers
                     await manager.InitAsync();
                 }
             }
-        }
-
-        private static async Task LoadBackendConfiguration()
-        {
-            FarkleLogger.Log("Loading BackendConfig from Addressables...");
-            
-            var handle2 = Addressables.LoadAssetsAsync<BackendConfig>(null);
-            await handle2.Task;
-
-            foreach (var config in handle2.Result)
-            {
-                Debug.Log($"Found config: {config.name}");
-            }
-            
-            var handle = Addressables.LoadAssetAsync<BackendConfig>("BackendConfig");
-            await handle.Task;
-            
-            if (handle.Status != AsyncOperationStatus.Succeeded)
-            {
-                FarkleLogger.LogError("Failed to load BackendConfig from Addressables.");
-                return;
-            }
-            BackendService.Initialize(handle.Result);
         }
     }
 }
