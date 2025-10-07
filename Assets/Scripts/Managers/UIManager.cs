@@ -361,7 +361,7 @@ namespace Farkle.Managers
 
         public bool FlipScreen()
         {
-            if (!PlayerSettingsManager.Settings.rotateUIAtEndOfTurn)
+            if (!GameSettingsManager.Settings.rotateUIAtEndOfTurn)
             {
                 return false;
             }

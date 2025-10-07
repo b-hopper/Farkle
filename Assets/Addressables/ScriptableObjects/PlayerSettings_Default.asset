@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3d3ce0edc0f4c2196fc93b4cd317659, type: 3}
-  m_Name: PlayerSettings
+  m_Name: PlayerSettings_Default
   m_EditorClassIdentifier: 
   playerCount: 2
   playerProfiles:
-  - playerName: Bread
-    highScore: 10750
-    gamesPlayed: 2
-    gamesWon: 2
-    totalScore: 12400
-  - playerName: Lern
+  - playerId: 
+    playerName: Player 1
     highScore: 6600
-    gamesPlayed: 2
-    gamesWon: 0
-    totalScore: 7250
-  rotateUIAtEndOfTurn: 0
-  animationSpeedMultiplier: 1
+    gamesPlayed: 67
+    gamesWon: 20
+    totalScore: 31850
+  - playerId: 
+    playerName: Player 2
+    highScore: 10750
+    gamesPlayed: 67
+    gamesWon: 47
+    totalScore: 57350

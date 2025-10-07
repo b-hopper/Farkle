@@ -10,6 +10,11 @@ namespace Farkle.Backend
         [JsonProperty("user_id")]     public string UserId;
         [JsonProperty("display_name")] public string DisplayName;
     }
+    
+    public class DeletePlayerRequest
+    {
+        [JsonProperty("player_id")] public string PlayerId;
+    }
 
     public class GameResultEntry
     {
@@ -35,6 +40,11 @@ namespace Farkle.Backend
     public class CreatePlayerResponse
     {
         [JsonProperty("player_id")] public string PlayerId;
+    }
+    
+    public class DeletePlayerResponse
+    {
+        [JsonProperty("success")] public bool Success;
     }
 
     public class PostGameResultResponse

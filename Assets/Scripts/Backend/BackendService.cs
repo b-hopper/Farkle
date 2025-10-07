@@ -67,6 +67,16 @@ namespace Farkle.Backend
             var res = await SendAsync(req);
             return DeserializeOrThrow<CreatePlayerResponse>(res);
         }
+        
+        public static async Task<DeletePlayerResponse> DeletePlayerAsync(string playerId)
+        {
+            EnsureConfig();
+            var payload = new DeletePlayerRequest { PlayerId = playerId };
+            var json = JsonConvert.SerializeObject(payload);
+            using var req = BuildJsonPost(Url("/delete-player"), json);
+            var res = await SendAsync(req);
+            return DeserializeOrThrow<DeletePlayerResponse>(res);
+        }
 
         public static async Task<PostGameResultResponse> PostGameResultAsync(string userId, System.Collections.Generic.List<GameResultEntry> results)
         {

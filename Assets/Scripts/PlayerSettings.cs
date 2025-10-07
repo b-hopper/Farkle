@@ -8,11 +8,20 @@ public class PlayerSettings : ScriptableObject
     
     [Header("Player Profiles")]
     public PlayerProfile[] playerProfiles;
-    
-    [Header("UI")]
-    public bool rotateUIAtEndOfTurn = true;
-    
-    [Header("Animations")]
-    [Range(0.1f, 2f)]
-    public float animationSpeedMultiplier = 1f;
+
+    public override string ToString()
+    {
+        if (playerProfiles == null || playerProfiles.Length == 0)
+        {
+            return "PlayerSettings: No player profiles set.";
+        }
+
+        string profilesStr = "";
+        for (int i = 0; i < playerProfiles.Length; i++)
+        {
+            profilesStr += $"Profile {i + 1}: {playerProfiles[i]}\n";
+        }
+        
+        return $"PlayerSettings: Player Count = {playerCount}\n{profilesStr}";
+    }
 }

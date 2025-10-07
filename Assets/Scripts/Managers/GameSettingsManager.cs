@@ -27,9 +27,11 @@ namespace Farkle.Managers
         {
             DontDestroyOnLoad(this);
             
+            //var handle = Addressables.LoadAssetAsync<GameSettings>("GameSettings_Default");
             var handle = Addressables.LoadAssetAsync<GameSettings>("GameSettings_LowScore");
-            await handle.Task;
 
+            await handle.Task;
+            
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
                 SetSettings(handle.Result as GameSettings);

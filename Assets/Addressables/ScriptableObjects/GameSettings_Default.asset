@@ -33,3 +33,5 @@ MonoBehaviour:
   pointsMultiplierOfAKind: 100
   pointsPerOne: 100
   pointsPerFive: 50
+  rotateUIAtEndOfTurn: 1
+  animationSpeedMultiplier: 1

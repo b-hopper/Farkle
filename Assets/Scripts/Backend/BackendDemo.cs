@@ -11,6 +11,7 @@ public class FarkleBackendDemo : MonoBehaviour
     [SerializeField]
     private string DemoDisplayName = "Tester";
 
+    
     [ContextMenu("Run Demo")]
     async void Start()
     {
@@ -62,6 +63,38 @@ public class FarkleBackendDemo : MonoBehaviour
                 userPlayersLog += $"\n\t<color=yellow>Player</color> -> {player.PlayerId} - {player.DisplayName}";
             }
             FarkleLogger.Log(userPlayersLog);
+            
+            // 6) Delete player
+            var deleted = await BackendService.DeletePlayerAsync(create.PlayerId);
+            FarkleLogger.Log($"DeletePlayer {create.PlayerId} -> success: {deleted.Success}");
+            
+        }
+        catch (System.Exception ex)
+        {
+            FarkleLogger.LogError($"Backend error: {ex.Message}");
+        }
+    }
+    
+    [ContextMenu("Delete All Players for User")]
+    async void DeleteAllPlayers()
+    {
+        if (Config == null)
+        {
+            FarkleLogger.LogError("Assign BackendConfig in the inspector.");
+            return;
+        }
+
+        BackendService.Initialize(Config);
+
+        try
+        {
+            var userId = BackendService.GetUserId();
+            var players = await BackendService.GetUserPlayersAsync(userId);
+            foreach (var player in players.Players)
+            {
+                var deleted = await BackendService.DeletePlayerAsync(player.PlayerId);
+                FarkleLogger.Log($"DeletePlayer {player.PlayerId} ({player.DisplayName}) -> success: {deleted.Success}");
+            }
         }
         catch (System.Exception ex)
         {

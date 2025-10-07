@@ -23,9 +23,34 @@ namespace Farkle.Managers
                 FarkleLogger.LogError("Cannot set null player settings.");
                 return;
             }
+            
+            if (_settings != null)
+            {
+                Destroy(_settings);
+            }
+            
+            _settings = Instantiate(newSettings);
+            
+            FarkleLogger.Log(_settings.ToString());
+        }
+        
+        public void SetSettings(PlayerProfile[] profiles)
+        {
+            if (profiles == null || profiles.Length == 0)
+            {
+                FarkleLogger.LogError("Cannot set null or empty player profiles.");
+                return;
+            }
 
-            _settings = newSettings;
-            LoadProfiles();
+            if (_settings != null)
+            {
+                Destroy(_settings);
+            }
+
+            _settings = ScriptableObject.CreateInstance<PlayerSettings>();
+            _settings.playerProfiles = profiles;
+            
+            FarkleLogger.Log(_settings.ToString());
         }
 
         public void SaveProfiles()
@@ -80,40 +105,38 @@ namespace Farkle.Managers
         public async Task InitAsync()
         {
             DontDestroyOnLoad(this);
+            
+            await LoadDefaultPlayerSettingsAsync();
 
             // Check if player profiles exist on backend
             var userId = BackendService.GetUserId();
-            var players = BackendService.GetUserPlayersAsync(userId);
-            if (players.IsCompletedSuccessfully && players.Result.Players.Count > 0)
+            var players = await BackendService.GetUserPlayersAsync(userId);
+            
+            if (players.Players.Count > 0)
             {
                 // If profiles exist, load them from backend
-                PlayerProfile[] loadedProfiles = new  PlayerProfile[players.Result.Players.Count];
-                for (int i = 0; i < players.Result.Players.Count; i++)
+                PlayerProfile[] loadedProfiles = new  PlayerProfile[players.Players.Count];
+                for (int i = 0; i < players.Players.Count; i++)
                 {
                     loadedProfiles[i] = new PlayerProfile
                     {
-                        playerId = players.Result.Players[i].PlayerId,
-                        playerName = players.Result.Players[i].DisplayName,
-                        gamesWon = players.Result.Players[i].Wins,
-                        totalScore = (int)players.Result.Players[i].TotalPoints,
+                        playerId = players.Players[i].PlayerId,
+                        playerName = players.Players[i].DisplayName,
+                        gamesWon = players.Players[i].Wins,
+                        totalScore = (int)players.Players[i].TotalPoints,
                     };
                 }
-                
-                // Overwrite existing profiles with loaded ones
-                ScriptableObject existingSettings = Addressables.LoadAssetAsync<ScriptableObject>("PlayerSettings").WaitForCompletion();
-                if (existingSettings is PlayerSettings existingPlayerSettings)
+
+                if (loadedProfiles.Length > 0)
                 {
-                    existingPlayerSettings.playerProfiles = loadedProfiles;
-                    SetSettings(existingPlayerSettings);
+                    SetSettings(loadedProfiles);
+                    FarkleLogger.Log("Loaded player profiles from backend.");
                 }
-                
-                FarkleLogger.Log("Loaded player profiles from backend.");
             }
             else
             {
                 // Otherwise, load default settings
-                FarkleLogger.Log("No player profiles found on backend, loading defaults.");
-                await LoadDefaultPlayerSettingsAsync();
+                FarkleLogger.LogWarning("No player profiles found on backend, falling back to defaults.");
             }
             
             LoadProfiles();
@@ -123,7 +146,7 @@ namespace Farkle.Managers
         {
             var handle = Addressables.LoadAssetAsync<ScriptableObject>("PlayerSettings_Default");
             await handle.Task;
-
+            
             if (handle.Status == AsyncOperationStatus.Succeeded)
             {
                 SetSettings(handle.Result as PlayerSettings);
@@ -131,6 +154,8 @@ namespace Farkle.Managers
                 {
                     FarkleLogger.LogError("PlayerSettings_Default does not contain a PlayerSettings component.");
                 }
+
+                LoadProfiles();
             }
             else
             {

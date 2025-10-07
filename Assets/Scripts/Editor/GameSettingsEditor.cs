@@ -13,6 +13,8 @@ public class GameSettingsEditor : Editor
     SerializedProperty pointsPerOneProp;
     SerializedProperty pointsPerFiveProp;
     SerializedProperty combosProp;
+    SerializedProperty rotateProp;
+    SerializedProperty animSpeedProp;
     
     ReorderableList combosList;
     
@@ -24,6 +26,8 @@ public class GameSettingsEditor : Editor
         pointsPerOneProp = serializedObject.FindProperty("pointsPerOne");
         pointsPerFiveProp = serializedObject.FindProperty("pointsPerFive");
         combosProp = serializedObject.FindProperty("combos");
+        rotateProp = serializedObject.FindProperty("rotateUIAtEndOfTurn");
+        animSpeedProp = serializedObject.FindProperty("animationSpeedMultiplier");
         
         combosList = new ReorderableList(serializedObject, combosProp, true, true, true, true);
         combosList.drawHeaderCallback = (Rect rect) => {EditorGUI.LabelField(rect, "Combo Rules");};
@@ -65,10 +69,14 @@ public class GameSettingsEditor : Editor
         EditorGUILayout.LabelField("Game Settings", EditorStyles.boldLabel);
         EditorGUILayout.Space(4);
         
+        EditorGUILayout.PropertyField(rotateProp, new GUIContent("Rotate UI", "Rotate the UI at the end of a player's turn."));
+        EditorGUILayout.Slider(animSpeedProp, 0.1f, 2f, new GUIContent("Animation Speed Multiplier", "Adjust the speed of animations throughout the game."));
+        EditorGUILayout.Space(4);
+
         EditorGUILayout.IntSlider(targetScoreProp, 1000, 50000, new GUIContent("Target Score", "Score required to win the game."));
         EditorGUILayout.IntSlider(breakInScoreProp, 100, 5000, new GUIContent("Break-In Score", "Score the player must reach in a single turn to break in."));
-        
         EditorGUILayout.Space(4);
+        
         EditorGUILayout.LabelField("Scoring Settings", EditorStyles.boldLabel);
         EditorGUILayout.Space(4);
         

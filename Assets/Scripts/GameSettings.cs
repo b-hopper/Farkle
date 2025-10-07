@@ -29,6 +29,11 @@ public class GameSettings : ScriptableObject
     [Tooltip("Points per 5 rolled (not part of another combo).")]
     public int pointsPerFive = 50;
     
+    [Tooltip("Rotate the UI at the end of a player's turn.")]
+    public bool rotateUIAtEndOfTurn = true;
+    
+    [Range(0.1f, 2f)]
+    public float animationSpeedMultiplier = 1f;
     
     public void ResetToDefaults()
     {
