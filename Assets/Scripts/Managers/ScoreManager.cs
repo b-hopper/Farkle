@@ -14,7 +14,9 @@ namespace Farkle.Managers
             public int Score;
             public int TurnScore;
             public int SelectedScore;
-
+            public int Turns;
+            public int Farkles;
+            
             public bool BrokenIn => (Score >= GameSettingsManager.Settings.breakInScore 
               || TurnScore + SelectedScore >= GameSettingsManager.Settings.breakInScore);
 
@@ -23,6 +25,8 @@ namespace Farkle.Managers
                 Score = score;
                 TurnScore = turnScore;
                 SelectedScore = 0;
+                Turns = 0;
+                Farkles = 0;
             }
 
             public void AddScore(int score)

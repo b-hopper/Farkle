@@ -7,10 +7,6 @@ public class FarkleBackendDemo : MonoBehaviour
 {
     [SerializeField]
     private BackendConfig Config;
-
-    [SerializeField]
-    private string DemoDisplayName = "Tester";
-
     
     [ContextMenu("Run Demo")]
     async void Start()
@@ -25,21 +21,27 @@ public class FarkleBackendDemo : MonoBehaviour
 
         try
         {
-            var userId = BackendService.GetUserId();
-            
             // 1) Create a player
-            var create = await BackendService.CreatePlayerAsync(userId, DemoDisplayName);
+            var create = await BackendService.CreatePlayerAsync("DemoDisplayName");
             FarkleLogger.Log($"CreatePlayer -> player_id: {create.PlayerId}");
+            var create2 = await BackendService.CreatePlayerAsync("DemoDisplayName2");
+            FarkleLogger.Log($"CreatePlayer -> player_id: {create2.PlayerId}");
 
             // 2) Post a fake game result
             var results = new List<GameResultEntry>
             {
                 new GameResultEntry {
                     PlayerId = create.PlayerId,
-                    Score = 10000, Turns = 9, Farkles = 2, Won = true
+                    Score = 10000, Turns = 9, Farkles = 2, 
+                    Won = true
+                },
+                new GameResultEntry {
+                    PlayerId = create2.PlayerId,
+                    Score = 8000, Turns = 9, Farkles = 3,
+                    Won = false
                 }
             };
-            var posted = await BackendService.PostGameResultAsync(userId, results);
+            var posted = await BackendService.PostGameResultAsync(results);
             FarkleLogger.Log($"GameResult -> game_id: {posted.GameId}");
 
             // 3) Fetch stats
@@ -56,8 +58,8 @@ public class FarkleBackendDemo : MonoBehaviour
             FarkleLogger.Log(leaderboardLog);
             
             // 5) List user players
-            var players = await BackendService.GetUserPlayersAsync(userId);
-            string userPlayersLog = $"User [<color=red>{userId}</color>] players: <color=green>{players.Players.Count}</color>";
+            var players = await BackendService.GetUserPlayersAsync();
+            string userPlayersLog = $"User [<color=red>{BackendService.GetUserId()}</color>] players: <color=green>{players.Players.Count}</color>";
             foreach (var player in players.Players)
             {
                 userPlayersLog += $"\n\t<color=yellow>Player</color> -> {player.PlayerId} - {player.DisplayName}";
@@ -67,6 +69,8 @@ public class FarkleBackendDemo : MonoBehaviour
             // 6) Delete player
             var deleted = await BackendService.DeletePlayerAsync(create.PlayerId);
             FarkleLogger.Log($"DeletePlayer {create.PlayerId} -> success: {deleted.Success}");
+            var deleted2 = await BackendService.DeletePlayerAsync(create2.PlayerId);
+            FarkleLogger.Log($"DeletePlayer {create2.PlayerId} -> success: {deleted2.Success}");
             
         }
         catch (System.Exception ex)
@@ -89,7 +93,7 @@ public class FarkleBackendDemo : MonoBehaviour
         try
         {
             var userId = BackendService.GetUserId();
-            var players = await BackendService.GetUserPlayersAsync(userId);
+            var players = await BackendService.GetUserPlayersAsync();
             foreach (var player in players.Players)
             {
                 var deleted = await BackendService.DeletePlayerAsync(player.PlayerId);

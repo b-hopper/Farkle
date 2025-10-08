@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using DG.Tweening;
+using Farkle.Backend;
 
 namespace Farkle.Managers
 {
@@ -138,16 +140,20 @@ namespace Farkle.Managers
 
         private void ResetGame()
         {
-            _playerCount = PlayerSettingsManager.Settings.playerCount;
             _currentPlayerIndex = 0;
             IsGameEnding = false;
-            
-            PlayerManager.Instance.InitPlayers(_playerCount);
+            List<PlayerProfile> playerProfiles = new List<PlayerProfile>();
+            foreach (var player in PlayerManager.Instance.AllPlayers)
+            {
+                playerProfiles.Add(player.Profile);
+            }
+            PlayerManager.Instance.InitPlayers(playerProfiles.ToArray());
         }
 
 
         private void OnFarkleFlowEntered()
         {
+            PlayerManager.Instance.CurrentPlayer.Score.Farkles++;
             SetTurnFlowState(TurnFlowState.END_TURN);
         }
 
@@ -192,6 +198,8 @@ namespace Farkle.Managers
 
         private void OnEndTurnFlowEntered()
         {
+            PlayerManager.Instance.CurrentPlayer.Score.Turns++;
+            
             if (IsGameEnding)
             {
                 FarkleLogger.LogWarning(
@@ -222,7 +230,6 @@ namespace Farkle.Managers
         {
             Player winner = ScoreManager.Instance.GetWinner();
             PlayerManager.Instance.RecordGameResults(winner);
-            PlayerSettingsManager.Instance.SaveProfiles();
 
             UIManager.Instance.ShowGameOverScreen();
         }

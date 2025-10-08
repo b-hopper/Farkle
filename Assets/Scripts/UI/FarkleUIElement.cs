@@ -1,4 +1,6 @@
 ﻿using System;
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 namespace Farkle.UI
@@ -11,6 +13,8 @@ namespace Farkle.UI
         /// </summary>
         [SerializeField] public string ElementName = "FarkleUIElement";
 
+        [SerializeField] public TMP_Text AlertText;
+        
         private void Awake()
         {
             Init();
@@ -34,6 +38,27 @@ namespace Farkle.UI
         public void SetActive(bool isActive)
         {
             gameObject.SetActive(isActive);
+        }
+        
+        public void Alert(string message)
+        {
+            if (AlertText != null)
+            {
+                AlertText.text = message;
+                AlertText.gameObject.SetActive(true);
+                
+                // DOTween fade out after 3 seconds
+                float displayDuration = 3f;
+                float fadeDuration = 1f;
+                AlertText.DOFade(1f, 0f).SetUpdate(true);
+                AlertText.DOFade(0f, fadeDuration).SetDelay(displayDuration).SetUpdate(true)
+                    .OnComplete(() => AlertText.gameObject.SetActive(false));
+                
+            }
+            else
+            {
+                FarkleLogger.LogWarning($"(FarkleUIElement::Alert) AlertText is not assigned in {ElementName}. Message: {message}");
+            }
         }
     }
 }

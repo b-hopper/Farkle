@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Farkle.Backend;
 using UnityEngine;
 
 namespace Farkle.Managers
@@ -18,6 +20,11 @@ namespace Farkle.Managers
         {
             Profile = profile;
             Score = new ScoreManager.PlayerScore(0, 0);
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} || Profile: {Profile} || Score: {Score.Score}, TurnScore: {Score.TurnScore}, Turns: {Score.Turns}, Farkles: {Score.Farkles}";
         }
     }
 
@@ -57,23 +64,28 @@ namespace Farkle.Managers
         }
 
         public Player[] AllPlayers => players;
-
-        public void InitPlayers(int playerCount = -1)
+        
+        public void InitPlayers(PlayerProfile[] profiles)
         {
-            var profiles = PlayerSettingsManager.Settings.playerProfiles;
-            playerCount = playerCount > 0 ? playerCount : profiles.Length;
-
-            players = new Player[playerCount];
-
-            for (int i = 0; i < playerCount; i++)
+            if (profiles == null || profiles.Length == 0)
             {
-                var profile = i < profiles.Length ? profiles[i] : new PlayerProfile { playerName = $"Player {i + 1}" };
+                FarkleLogger.LogError("Cannot initialize players with null or empty profiles.");
+                return;
+            }
+            
+            players = new Player[profiles.Length];
+
+            for (int i = 0; i < profiles.Length; i++)
+            {
+                var profile = profiles[i];
                 players[i] = new Player(profile);
             }
         }
 
         public void RecordGameResults(Player winner)
         {
+            List<GameResultEntry> results = new List<GameResultEntry>();
+            
             foreach (var player in players)
             {
                 var profile = player.Profile;
@@ -89,14 +101,36 @@ namespace Farkle.Managers
                 {
                     profile.gamesWon++;
                 }
+                
+                var entry = new GameResultEntry
+                {
+                    PlayerId = profile.playerId,
+                    Score = player.Score.Score,
+                    Turns = player.Score.Turns,
+                    Farkles = player.Score.Farkles,
+                    Won = player == winner
+                };
+                results.Add(entry);
             }
+            
+            
+            BackendService.PostGameResultAsync(results)
+                .ContinueWith(task =>
+                {
+                    if (task.IsFaulted)
+                    {
+                        FarkleLogger.LogError("Failed to post game results to backend.");
+                    }
+                    else
+                    {
+                        FarkleLogger.Log("Game results posted to backend successfully.");
+                    }
+                });;
         }
 
 
         public Task InitAsync()
         {
-            var players = PlayerSettingsManager.Settings.playerCount;
-            InitPlayers(players);
             return Task.CompletedTask;
         }
     }

@@ -58,10 +58,10 @@ namespace Farkle.Backend
 
         // ------------- Endpoints -------------
 
-        public static async Task<CreatePlayerResponse> CreatePlayerAsync(string userId, string displayName)
+        public static async Task<CreatePlayerResponse> CreatePlayerAsync(string displayName)
         {
             EnsureConfig();
-            var payload = new CreatePlayerRequest { UserId = userId, DisplayName = displayName };
+            var payload = new CreatePlayerRequest { UserId = GetUserId(), DisplayName = displayName };
             var json = JsonConvert.SerializeObject(payload);
             using var req = BuildJsonPost(Url("/create-player"), json);
             var res = await SendAsync(req);
@@ -78,10 +78,10 @@ namespace Farkle.Backend
             return DeserializeOrThrow<DeletePlayerResponse>(res);
         }
 
-        public static async Task<PostGameResultResponse> PostGameResultAsync(string userId, System.Collections.Generic.List<GameResultEntry> results)
+        public static async Task<PostGameResultResponse> PostGameResultAsync(System.Collections.Generic.List<GameResultEntry> results)
         {
             EnsureConfig();
-            var payload = new PostGameResultRequest { UserId = userId, Results = results };
+            var payload = new PostGameResultRequest { UserId = GetUserId(), Results = results };
             var json = JsonConvert.SerializeObject(payload);
             using var req = BuildJsonPost(Url("/game-result"), json);
             var res = await SendAsync(req);
@@ -105,10 +105,10 @@ namespace Farkle.Backend
         }
 
 
-        public static async Task<UserPlayersResponse> GetUserPlayersAsync(string userId)
+        public static async Task<UserPlayersResponse> GetUserPlayersAsync()
         {
             EnsureConfig();
-            using var req = UnityWebRequest.Get(Url($"/user-players?user_id={UnityWebRequest.EscapeURL(userId)}"));
+            using var req = UnityWebRequest.Get(Url($"/user-players?user_id={UnityWebRequest.EscapeURL(GetUserId())}"));
             var res = await SendAsync(req);
             return DeserializeOrThrow<UserPlayersResponse>(res);
         }
