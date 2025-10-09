@@ -45,10 +45,10 @@ namespace Farkle.Managers
             _settings = ScriptableObject.CreateInstance<PlayerSettings>();
             _settings.playerProfiles = profiles;
             
-            SaveProfiles();
+            SaveProfilesToDisk();
         }
 
-        public void SaveProfiles()
+        public void SaveProfilesToDisk()
         {
             string json = JsonUtility.ToJson(new PlayerProfileList { profiles = _settings.playerProfiles }, true);
             try
@@ -61,11 +61,9 @@ namespace Farkle.Managers
                 FarkleLogger.LogError($"Error saving player profiles: {e.Message}");
                 throw;
             }
-            
-            
         }
 
-        public void LoadProfiles()
+        public void LoadProfilesFromDisk()
         {
             if (!File.Exists(SavePath))
             {
@@ -76,6 +74,12 @@ namespace Farkle.Managers
             try
             {
                 string json = File.ReadAllText(SavePath);
+                Debug.Log("Loaded JSON: " + json);
+                if (string.IsNullOrEmpty(json))
+                {
+                    FarkleLogger.LogWarning("Player profiles file is empty.");
+                    return;
+                }
                 PlayerProfileList list = JsonUtility.FromJson<PlayerProfileList>(json);
                 if (list == null || list.profiles == null || list.profiles.Length == 0)
                 {
@@ -83,7 +87,8 @@ namespace Farkle.Managers
                     return;
                 }
 
-                _settings.playerProfiles = list.profiles;
+                Debug.Log("Deserialized Profiles");
+                SetSettings(list.profiles);
                 FarkleLogger.Log("Player profiles loaded successfully.");
             }
             catch (Exception e)
@@ -120,12 +125,46 @@ namespace Farkle.Managers
                 _settings.playerProfiles = profiles.ToArray();
                 
                 FarkleLogger.Log($"Created player on backend with ID: {createdPlayer.PlayerId}");
-                SaveProfiles();
+                SaveProfilesToDisk();
             }
             catch (Exception)
             {
                 FarkleLogger.LogError("Failed to create player on backend.");
             }
+        }
+        
+        public void UpdatePlayerProfiles(PlayerProfile[] playerProfiles)
+        {
+            if (_settings == null)
+            {
+                FarkleLogger.LogError("PlayerSettings is null. Cannot update profile.");
+                return;
+            }
+
+            foreach (var playerProfile in playerProfiles)
+            {
+                if (playerProfile == null || string.IsNullOrEmpty(playerProfile.playerId))
+                {
+                    FarkleLogger.LogError("Invalid player profile. Cannot update.");
+                    return;
+                }
+
+                var profiles = new List<PlayerProfile>(_settings.playerProfiles ?? Array.Empty<PlayerProfile>());
+                int index = profiles.FindIndex(p => p.playerId == playerProfile.playerId);
+                if (index >= 0)
+                {
+                    profiles[index] = playerProfile;
+                    _settings.playerProfiles = profiles.ToArray();
+                    FarkleLogger.Log(
+                        $"Updated player profile '{playerProfile.playerName}' with ID: {playerProfile.playerId}");
+                }
+                else
+                {
+                    FarkleLogger.LogWarning(
+                        $"Player profile with ID '{playerProfile.playerId}' not found. Cannot update.");
+                }
+            }
+            SaveProfilesToDisk();
         }
 
         public async Task DeletePlayerProfileAsync(PlayerProfile playerProfile)
@@ -152,7 +191,7 @@ namespace Farkle.Managers
                     {
                         _settings.playerProfiles = profiles.ToArray();
                         FarkleLogger.Log($"Deleted player profile '{playerProfile.playerName}' with ID: {playerProfile.playerId}");
-                        SaveProfiles();
+                        SaveProfilesToDisk();
                     }
                     else
                     {
@@ -179,42 +218,37 @@ namespace Farkle.Managers
         public async Task InitAsync()
         {
             DontDestroyOnLoad(this);
-            
-            //await LoadDefaultPlayerSettingsAsync();
 
-            // Check if player profiles exist on backend
-            var playersTask = BackendService.GetUserPlayersAsync();
-            await Task.WhenAll(playersTask);
-            if (playersTask.IsFaulted)
+            try
             {
-                FarkleLogger.LogError("Failed to fetch player profiles from backend. Loading local profiles.");
-                LoadProfiles();
+                var players = await BackendService.GetUserPlayersAsync();
+                
+                // If profiles exist, load them from backend
+                PlayerProfile[] loadedProfiles = new  PlayerProfile[players.Players.Count];
+                for (int i = 0; i < players.Players.Count; i++)
+                {
+                    loadedProfiles[i] = new PlayerProfile
+                    {
+                        playerId = players.Players[i].PlayerId,
+                        playerName = players.Players[i].DisplayName,
+                        gamesWon = players.Players[i].Wins,
+                        totalScore = (int)players.Players[i].TotalPoints,
+                    };
+                }
+
+                SetSettings(loadedProfiles);
+                FarkleLogger.Log("Loaded player profiles from backend.");
+            }
+            catch (Exception e)
+            {
+                FarkleLogger.LogError("Failed to fetch player profiles from backend. Loading local profiles. Error: " + e.Message);
+                LoadProfilesFromDisk();
                 if (_settings == null || _settings.playerProfiles == null || _settings.playerProfiles.Length == 0)
                 {
                     FarkleLogger.LogWarning("No local player profiles found. Loading default profiles.");
                     await LoadDefaultPlayerSettingsAsync();
                 }
-                return;
             }
-            
-            var players = playersTask.Result;
-            
-            // If profiles exist, load them from backend
-            PlayerProfile[] loadedProfiles = new  PlayerProfile[players.Players.Count];
-            for (int i = 0; i < players.Players.Count; i++)
-            {
-                loadedProfiles[i] = new PlayerProfile
-                {
-                    playerId = players.Players[i].PlayerId,
-                    playerName = players.Players[i].DisplayName,
-                    gamesWon = players.Players[i].Wins,
-                    totalScore = (int)players.Players[i].TotalPoints,
-                };
-            }
-
-            SetSettings(loadedProfiles);
-            FarkleLogger.Log("Loaded player profiles from backend.");
-            SaveProfiles();
         }
 
         private async Task LoadDefaultPlayerSettingsAsync()

@@ -81,7 +81,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6972736501543849219
 RectTransform:
   m_ObjectHideFlags: 0
@@ -325,9 +325,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a6c3a6235db4a45afb2c25423db83f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ElementName: FarkleUIElement
+  AlertText: {fileID: 0}
   nameText: {fileID: 1641915745226557785}
   scoreText: {fileID: 153078751997435640}
-  highlightBackground: {fileID: 7435881975933752690}
+  highlightBackground: {fileID: 6972736501543849219}
+  selectButton: {fileID: 0}
+  playerProfile:
+    playerId: 
+    playerName: Player
+    highScore: 0
+    gamesPlayed: 0
+    gamesWon: 0
+    totalScore: 0
 --- !u!1 &8890237236193262099
 GameObject:
   m_ObjectHideFlags: 0

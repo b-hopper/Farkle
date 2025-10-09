@@ -85,9 +85,11 @@ namespace Farkle.Managers
         public void RecordGameResults(Player winner)
         {
             List<GameResultEntry> results = new List<GameResultEntry>();
-            
-            foreach (var player in players)
+            PlayerProfile[] updatedProfiles = new PlayerProfile[players.Length];
+
+            for (var i = 0; i < players.Length; i++)
             {
+                var player = players[i];
                 var profile = player.Profile;
                 profile.gamesPlayed++;
                 profile.totalScore += player.Score.Score;
@@ -101,7 +103,7 @@ namespace Farkle.Managers
                 {
                     profile.gamesWon++;
                 }
-                
+
                 var entry = new GameResultEntry
                 {
                     PlayerId = profile.playerId,
@@ -111,8 +113,10 @@ namespace Farkle.Managers
                     Won = player == winner
                 };
                 results.Add(entry);
+                updatedProfiles[i] = profile;
             }
-            
+
+            PlayerSettingsManager.Instance.UpdatePlayerProfiles(updatedProfiles);
             
             BackendService.PostGameResultAsync(results)
                 .ContinueWith(task =>

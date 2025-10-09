@@ -403,9 +403,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ElementName: PlayerUIWidget_GameOver
+  AlertText: {fileID: 0}
   nameText: {fileID: 1641915745226557785}
   scoreText: {fileID: 153078751997435640}
-  highlightBackground: {fileID: 7435881975933752690}
+  highlightBackground: {fileID: 6972736501543849219}
+  selectButton: {fileID: 0}
+  playerProfile:
+    playerId: 
+    playerName: Player
+    highScore: 0
+    gamesPlayed: 0
+    gamesWon: 0
+    totalScore: 0
 --- !u!114 &1680609597903860583
 MonoBehaviour:
   m_ObjectHideFlags: 0

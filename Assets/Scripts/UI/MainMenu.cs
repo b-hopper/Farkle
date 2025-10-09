@@ -57,7 +57,10 @@ namespace Farkle.UI
             playerEntries.Clear();
             _currentSelectedPlayers.Clear();
             
-            foreach (var playerProfile in PlayerSettingsManager.Settings.playerProfiles)
+            PlayerProfile[] sortedProfiles = PlayerSettingsManager.Settings.playerProfiles;
+            Array.Sort(sortedProfiles, (a, b) => b.gamesPlayed.CompareTo(a.gamesPlayed));
+            
+            foreach (var playerProfile in sortedProfiles)
             {
                 try
                 {

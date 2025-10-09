@@ -9,7 +9,7 @@ namespace Farkle.UI
     {
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI scoreText;
-        [SerializeField] private Image highlightBackground;
+        [SerializeField] private Transform highlightBackground;
 
         [SerializeField] public Button selectButton;
 
@@ -50,7 +50,7 @@ namespace Farkle.UI
         {
             if (highlightBackground != null)
             {
-                highlightBackground.enabled = highlight;
+                highlightBackground.gameObject.SetActive(highlight);
             }
         }
         
