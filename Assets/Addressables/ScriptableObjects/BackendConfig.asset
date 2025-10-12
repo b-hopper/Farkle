@@ -12,6 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb8343c60e394c1bbc471a864bd0c76b, type: 3}
   m_Name: BackendConfig
   m_EditorClassIdentifier: 
-  BaseUrl: http://localhost:8000
-  UserId: 
+  BaseUrl: https://std-very-matt-apnic.trycloudflare.com
   TimeoutSeconds: 10

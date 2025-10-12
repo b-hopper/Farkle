@@ -120,7 +120,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2348354382077459102}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 80253583059850698}
+        m_TargetAssemblyTypeName: Farkle.UI.PlayerUIWidget, Assembly-CSharp
+        m_MethodName: ShowPlayerStats
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2037596217300802721
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Farkle.UI
 {
-    public class FarkleUIElement : MonoBehaviour
+    public abstract class FarkleUIElement : MonoBehaviour
     {
         /// <summary>
         /// Unique name for the UI element, used for identification in the Farkle UI system.
@@ -14,6 +14,9 @@ namespace Farkle.UI
         [SerializeField] public string ElementName = "FarkleUIElement";
 
         [SerializeField] public TMP_Text AlertText;
+        
+        static FarkleUIElement instance;
+        public static FarkleUIElement Instance => instance ? instance : instance = FindFirstObjectByType<FarkleUIElement>(FindObjectsInactive.Include);
         
         private void Awake()
         {

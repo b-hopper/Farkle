@@ -15,6 +15,9 @@ namespace Farkle.UI
         
         [SerializeField] private AddPlayerPanel addPlayerPanel;
         [SerializeField] private ConfirmPanel confirmPanel;
+
+        private static MainMenu instance;
+        public new static MainMenu Instance => instance ? instance : instance = FindFirstObjectByType<MainMenu>(FindObjectsInactive.Include);
         
         private async void Start()
         {
@@ -46,7 +49,7 @@ namespace Farkle.UI
             FarkleLogger.Log("Options button clicked. Implement options menu here.");
         }
 
-        private void PopulatePlayers()
+        public void PopulatePlayers()
         {
             FarkleLogger.Log("Populating players: " + PlayerSettingsManager.Settings.playerProfiles.Length);
             // Clear existing entries

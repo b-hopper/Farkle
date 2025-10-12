@@ -56,8 +56,7 @@ namespace Farkle.UI
         
         public void ShowPlayerStats()
         {
-            // TODO
-            FarkleLogger.Log($"Showing stats for player: {playerProfile}");
+            PlayerStatsPanel.Instance.Setup(playerProfile);
         }
     }
 }

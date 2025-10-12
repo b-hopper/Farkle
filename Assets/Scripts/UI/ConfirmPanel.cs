@@ -8,6 +8,10 @@ public class ConfirmPanel : FarkleUIElement
     [SerializeField] private UnityEngine.UI.Button yesButton;
     [SerializeField] private UnityEngine.UI.Button noButton;
     
+    static ConfirmPanel instance;
+
+    public static ConfirmPanel Instance => instance ? instance : instance = FindFirstObjectByType<ConfirmPanel>(FindObjectsInactive.Include);
+    
     public void Show(string message, UnityAction onYes, UnityAction onNo = null)
     {
         messageText.text = message;
