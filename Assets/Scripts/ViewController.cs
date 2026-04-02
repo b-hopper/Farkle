@@ -38,6 +38,7 @@ public class ViewController : Singleton<ViewController>
         InitDelegates();
         InitDiceViews();
         UpdateDiceView();
+        FarkleGame.Instance.NewGame();
     }
 
     private void InitDelegates()
@@ -49,6 +50,17 @@ public class ViewController : Singleton<ViewController>
         FarkleGame.Instance.OnTurnEnd.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnDiceHeld.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnGameStart.AddListener(UpdateDiceView);
+    }
+
+    private void OnDestroy()
+    {
+        FarkleGame.Instance.OnRollDiceStart.RemoveListener(DoRollDiceAnimation);
+        FarkleGame.Instance.OnTurnScoreUpdated.RemoveListener(UpdateDiceView);
+        FarkleGame.Instance.OnSelectDice.RemoveListener(UpdateDiceView);
+        FarkleGame.Instance.OnFarkle.RemoveListener(UpdateDiceView);
+        FarkleGame.Instance.OnTurnEnd.RemoveListener(UpdateDiceView);
+        FarkleGame.Instance.OnDiceHeld.RemoveListener(UpdateDiceView);
+        FarkleGame.Instance.OnGameStart.RemoveListener(UpdateDiceView);
     }
 
     private void DoRollDiceAnimation(float duration)
@@ -65,8 +77,10 @@ public class ViewController : Singleton<ViewController>
     private void UpdateDiceView(int _) => UpdateDiceView();
     private void UpdateDiceView()
     {
+        if (dieViews == null) return;
         for (var i = 0; i < DiceManager.Instance.Dice.Length; i++)
         {
+            if (dieViews[i] == null) continue;
             dieViews[i].UpdateFromDice();
         }
     }

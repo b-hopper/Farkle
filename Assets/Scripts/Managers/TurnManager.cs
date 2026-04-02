@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using DG.Tweening;
 using Farkle.Backend;
 
 namespace Farkle.Managers
@@ -8,8 +7,6 @@ namespace Farkle.Managers
     {
         public int CurrentPlayerIndex => _currentPlayerIndex;
 
-        private int _playerCount = 2;
-        
         private int _currentPlayerIndex;
 
         public TurnFlowState CurrentState => _currentState;
@@ -49,6 +46,13 @@ namespace Farkle.Managers
             FarkleGame.Instance.OnFarkle.AddListener(OnFarkle);
         }
 
+        private void OnDestroy()
+        {
+            FarkleGame.Instance.OnRollDiceFinish.RemoveListener(OnRollDiceFinish);
+            FarkleGame.Instance.OnDiceHeld.RemoveListener(OnDiceHeld);
+            FarkleGame.Instance.OnFarkle.RemoveListener(OnFarkle);
+        }
+
         private void OnFarkle()
         {
             SetTurnFlowState(TurnFlowState.FARKLE);
@@ -67,7 +71,7 @@ namespace Farkle.Managers
 
         public void NextPlayer()
         {
-            _currentPlayerIndex = (_currentPlayerIndex + 1) % _playerCount;
+            _currentPlayerIndex = (_currentPlayerIndex + 1) % PlayerManager.Instance.AllPlayers.Length;
 
             SetTurnFlowState(TurnFlowState.START_TURN);
         }
@@ -135,7 +139,7 @@ namespace Farkle.Managers
             ResetGame();
 
             SetTurnFlowState(TurnFlowState.START_TURN);
-            FarkleLogger.Log($"(TurnManager::OnInitGameFlowEntered) Initialized with {_playerCount} players.");
+            FarkleLogger.Log($"(TurnManager::OnInitGameFlowEntered) Initialized with {PlayerManager.Instance.AllPlayers.Length} players.");
         }
 
         private void ResetGame()
@@ -199,7 +203,7 @@ namespace Farkle.Managers
         private void OnEndTurnFlowEntered()
         {
             PlayerManager.Instance.CurrentPlayer.Score.Turns++;
-            
+
             if (IsGameEnding)
             {
                 FarkleLogger.LogWarning(
@@ -211,19 +215,9 @@ namespace Farkle.Managers
                 {
                     SetTurnFlowState(TurnFlowState.GAME_OVER);
                 }
-                else
-                {
-                    DOTween.Sequence()
-                        .AppendInterval(2f)
-                        .OnComplete(NextPlayer);
-                }
+                // Otherwise wait for player to press the button
             }
-            else
-            {
-                DOTween.Sequence()
-                    .AppendInterval(2f)
-                    .OnComplete(NextPlayer);
-            }
+            // Wait for player to press the NEXT PLAYER button
         }
 
         private void OnGameOverFlowEntered()

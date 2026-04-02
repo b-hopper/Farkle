@@ -2,7 +2,7 @@
 
 public class FarkleLogger
 {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static void Log(string message)
     {
         Debug.Log($"<color=white>[FARKLE]</color> {message}");
@@ -17,9 +17,9 @@ public class FarkleLogger
     {
         Debug.LogError($"<color=red>[FARKLE]</color> {message}");
     }
-#else
-    public static void Log(string message) { }
-    public static void LogWarning(string message) { }
-    public static void LogError(string message) { }
-#endif
+// #else
+//     public static void Log(string message) { }
+//     public static void LogWarning(string message) { }
+//     public static void LogError(string message) { }
+// #endif
 }

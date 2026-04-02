@@ -10,7 +10,8 @@ public class ConfirmPanel : FarkleUIElement
     
     static ConfirmPanel instance;
 
-    public static ConfirmPanel Instance => instance ? instance : instance = FindFirstObjectByType<ConfirmPanel>(FindObjectsInactive.Include);
+    public new static ConfirmPanel Instance => instance ? instance : instance = 
+        FindAnyObjectByType<ConfirmPanel>(FindObjectsInactive.Include);
     
     public void Show(string message, UnityAction onYes, UnityAction onNo = null)
     {

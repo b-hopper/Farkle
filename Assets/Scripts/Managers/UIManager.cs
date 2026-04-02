@@ -57,6 +57,12 @@ namespace Farkle.Managers
             FarkleGame.Instance.OnGameStart.AddListener(ResetCanvasRotation);
         }
 
+        private void OnDestroy()
+        {
+            FarkleGame.Instance.OnSelectDice.RemoveListener(UpdateUI);
+            FarkleGame.Instance.OnGameStart.RemoveListener(ResetCanvasRotation);
+        }
+
         private void Start()
         {
             UpdateUI();
@@ -288,7 +294,7 @@ namespace Farkle.Managers
                     break;
 
                 case TurnManager.TurnFlowState.END_TURN:
-                    //TurnManager.Instance.NextPlayer();
+                    TurnManager.Instance.NextPlayer();
                     break;
 
                 case TurnManager.TurnFlowState.GAME_OVER:
@@ -366,11 +372,11 @@ namespace Farkle.Managers
                 return false;
             }
 
-            RotateCanvas();
+            RotateCanvas(180.0f, 0.15f);
             return true;
         }
 
-        private void RotateCanvas(float angle = 180.0f, float duration = 1.5f)
+        private void RotateCanvas(float angle = 180.0f, float duration = .85f)
         {
             float currentAngle = RotationTransform.eulerAngles.z;
             float targetAngle = currentAngle + angle;
@@ -378,14 +384,14 @@ namespace Farkle.Managers
             RotateCanvasTo(targetAngle, duration);
         }
 
-        private void RotateCanvasTo(float angle = 180.0f, float duration = 1.5f)
+        private void RotateCanvasTo(float angle = 180.0f, float duration = .85f)
         {
             RotationTransform.DORotate(new Vector3(0, 0, angle), duration).SetEase(Ease.InOutQuint);
         }
 
         private void ResetCanvasRotation()
         {
-            RotateCanvasTo(0.0f, 1.5f);
+            RotateCanvasTo(0.0f);
         }
 
         public void UpdateDebugText(string text)

@@ -34,6 +34,14 @@ namespace Farkle.Managers
             FarkleGame.Instance.OnTurnScoreUpdated.AddListener(OnTurnScoreUpdated);
         }
 
+        private void OnDestroy()
+        {
+            FarkleGame.Instance.OnFarkle.RemoveListener(OnFarkle);
+            FarkleGame.Instance.OnRollDiceStart.RemoveListener(RollDice);
+            FarkleGame.Instance.OnDiceHeld.RemoveListener(HoldSelectedDice);
+            FarkleGame.Instance.OnTurnScoreUpdated.RemoveListener(OnTurnScoreUpdated);
+        }
+
 
         public void RollDice(float _) => RollDice();
 
@@ -255,8 +263,8 @@ namespace Farkle.Managers
                 return settings.combos.First(x => x.id == "three_pairs").points;
             }
 
-            // Check for 3 pairs, but two of the pairs are the same
-            if (valueCounts.Count == 2 && valueCounts.All(x => x.Value == 2 || x.Value == 4))
+            // Check for 3 pairs, but two of the pairs are the same (requires exactly 6 dice)
+            if (selectedDice.Length == 6 && valueCounts.Count == 2 && valueCounts.All(x => x.Value == 2 || x.Value == 4))
             {
                 return settings.combos.First(x => x.id == "three_pairs").points;
             }

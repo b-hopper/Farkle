@@ -17,6 +17,8 @@ namespace Farkle.Backend
             _config = config;
         }
 
+        public static bool IsConfigured => _config != null;
+
         static void EnsureConfig()
         {
             if (_config == null)

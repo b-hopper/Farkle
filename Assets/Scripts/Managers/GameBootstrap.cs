@@ -14,25 +14,39 @@ namespace Farkle.Managers
     /// </summary>
     public class GameBootstrap : MonoBehaviour
     {
+        private static bool _initialized = false;
+        private static Task _initTask = null;
+
         private async void Start()
         {
             FarkleLogger.Log("GameBootstrap Start");
-            await InitializeAsync();
-        }
-
-        private async Task InitializeAsync()
-        {
-            
-            FarkleLogger.Log("GameBootstrap InitializeAsync started");
-
-            await LoadBackendConfiguration();
-            await InitializeGameManagersAsync();
-            
-            // Once managers are ready, load the first scene or start the game
+            await EnsureInitializedAsync();
             FarkleSceneManager.Instance.LoadMainMenu();
         }
 
-        private async Task LoadBackendConfiguration()
+        /// <summary>
+        /// Ensures all game managers are initialized. Safe to call from any scene —
+        /// runs only once regardless of how many callers await it.
+        /// </summary>
+        public static Task EnsureInitializedAsync()
+        {
+            if (_initialized) return Task.CompletedTask;
+            if (_initTask != null) return _initTask;
+
+            _initTask = RunInitAsync();
+            return _initTask;
+        }
+
+        private static async Task RunInitAsync()
+        {
+            FarkleLogger.Log("GameBootstrap: Initializing...");
+            _ = LoadBackendConfigurationAsync(); // fire and forget — backend is optional
+            await InitializeGameManagersAsync();
+            _initialized = true;
+            FarkleLogger.Log("GameBootstrap: Initialization complete.");
+        }
+
+        private static async Task LoadBackendConfigurationAsync()
         {
             FarkleLogger.Log("Loading BackendConfig from Addressables...");
             var handle = Addressables.LoadAssetAsync<BackendConfig>("BackendConfig_Default");
@@ -44,8 +58,8 @@ namespace Farkle.Managers
             }
             BackendService.Initialize(handle.Result);
         }
-        
-        private async Task InitializeGameManagersAsync()
+
+        private static async Task InitializeGameManagersAsync()
         {
             FarkleLogger.Log("Initializing game managers...");
             var managers = new List<IGameManager>
@@ -53,7 +67,6 @@ namespace Farkle.Managers
                 GameSettingsManager.Instance,
                 PlayerSettingsManager.Instance,
                 PlayerManager.Instance,
-                // Add additional managers that need async initialization here
             };
 
             foreach (var manager in managers)

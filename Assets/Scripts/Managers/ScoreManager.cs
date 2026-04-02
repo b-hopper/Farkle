@@ -60,6 +60,12 @@ namespace Farkle.Managers
             // FarkleGame.Instance.OnDiceHeld.AddListener(OnDiceHeld);
         }
 
+        private void OnDestroy()
+        {
+            FarkleGame.Instance.OnFarkle.RemoveListener(OnFarkle);
+            FarkleGame.Instance.OnTurnScoreUpdated.RemoveListener(AddTurnScore);
+        }
+
         private void OnFarkle()
         {
             ResetTurnScore();

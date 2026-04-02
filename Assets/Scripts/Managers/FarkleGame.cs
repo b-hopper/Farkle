@@ -71,19 +71,11 @@ namespace Farkle.Managers
                         LockInput();
                         DOTween.Sequence()
                             .AppendCallback(() => UIManager.Instance.DoSplashText("Farkle!"))
-                            .AppendInterval(1.0f)
+                            .AppendInterval(0.85f)
                             .AppendCallback(() =>
                             {
-                                if (UIManager.Instance.FlipScreen())
-                                {
-                                    DOTween.Sequence()
-                                        .AppendInterval(1.5f)
-                                        .AppendCallback(() => EndTurn(true));
-                                }
-                                else
-                                {
-                                    EndTurn(true);
-                                }
+                                UIManager.Instance.FlipScreen();
+                                EndTurn(true);
                             });
                     }
                 });
@@ -115,22 +107,19 @@ namespace Farkle.Managers
 
             LockInput();
 
+            UIManager.Instance.DoSplashText("Holding dice");
             DOTween.Sequence()
-                .AppendCallback(() => UIManager.Instance.DoSplashText("Holding dice"))
-                .AppendInterval(1.0f)
+                .AppendInterval(0.85f)
+                .AppendCallback(() =>
+                 {
+                     UIManager.Instance.DoSplashText("Ending turn");
+                 })
+                .AppendInterval(0.65f)
                 .AppendCallback(() =>
                 {
-                    if (UIManager.Instance.FlipScreen())
-                    {
-                        DOTween.Sequence()
-                            .AppendInterval(1.5f)
-                            .AppendCallback(() => EndTurn());
-                    }
-                    else
-                    {
-                        EndTurn();
-                    }
-                });
+                    UIManager.Instance.FlipScreen();
+                    EndTurn();
+                 });
         }
 
         private void EndTurn(bool farkle = false)

@@ -17,11 +17,13 @@ namespace Farkle.UI
         [SerializeField] private ConfirmPanel confirmPanel;
 
         private static MainMenu instance;
-        public new static MainMenu Instance => instance ? instance : instance = FindFirstObjectByType<MainMenu>(FindObjectsInactive.Include);
+        public new static MainMenu Instance => instance ? instance : instance = 
+            FindAnyObjectByType<MainMenu>(FindObjectsInactive.Include);
         
         private async void Start()
         {
             _currentSelectedPlayers = new List<PlayerUIWidget>();
+            await GameBootstrap.EnsureInitializedAsync();
             PopulatePlayers();
         }
 
@@ -32,15 +34,37 @@ namespace Farkle.UI
                 Alert("Please select at least 2 players to start the game.");
                 return;
             }
-            
+
             var profiles = new List<PlayerProfile>();
             foreach (var player in _currentSelectedPlayers)
             {
                 profiles.Add(player.playerProfile);
             }
-            
+
+            SaveLastSelectedPlayers(profiles);
             PlayerManager.Instance.InitPlayers(profiles.ToArray());
             FarkleSceneManager.Instance.LoadGameScene();
+        }
+
+        private const string LastPlayersKey = "LastSelectedPlayerIds";
+
+        private static void SaveLastSelectedPlayers(List<PlayerProfile> profiles)
+        {
+            var ids = new string[profiles.Count];
+            for (int i = 0; i < profiles.Count; i++)
+                ids[i] = profiles[i].playerId;
+            PlayerPrefs.SetString(LastPlayersKey, string.Join(",", ids));
+            PlayerPrefs.Save();
+        }
+
+        private static List<string> LoadLastSelectedPlayerIds()
+        {
+            string saved = PlayerPrefs.GetString(LastPlayersKey, "");
+            var list = new List<string>();
+            if (string.IsNullOrEmpty(saved)) return list;
+            foreach (var id in saved.Split(','))
+                if (!string.IsNullOrEmpty(id)) list.Add(id);
+            return list;
         }
         
         public void Options()
@@ -51,6 +75,12 @@ namespace Farkle.UI
 
         public void PopulatePlayers()
         {
+            if (PlayerSettingsManager.Settings == null || PlayerSettingsManager.Settings.playerProfiles == null)
+            {
+                FarkleLogger.LogWarning("PopulatePlayers: PlayerSettings not ready yet.");
+                return;
+            }
+
             FarkleLogger.Log("Populating players: " + PlayerSettingsManager.Settings.playerProfiles.Length);
             // Clear existing entries
             foreach (var entry in playerEntries)
@@ -62,7 +92,10 @@ namespace Farkle.UI
             
             PlayerProfile[] sortedProfiles = PlayerSettingsManager.Settings.playerProfiles;
             Array.Sort(sortedProfiles, (a, b) => b.gamesPlayed.CompareTo(a.gamesPlayed));
-            
+
+            List<string> lastSelectedIds = LoadLastSelectedPlayerIds();
+            var entryByPlayerId = new Dictionary<string, PlayerUIWidget>();
+
             foreach (var playerProfile in sortedProfiles)
             {
                 try
@@ -88,13 +121,23 @@ namespace Farkle.UI
                             _currentSelectedPlayers.Remove(entry);
                             entry.SetHighlight(false);
                         }
-                            
                     });
                     playerEntries.Add(entry.transform);
+                    entryByPlayerId[playerProfile.playerId] = entry;
                 }
                 catch (Exception e)
                 {
                     FarkleLogger.LogError("Failed to instantiate player entry: " + e);
+                }
+            }
+
+            // Restore selections in saved turn order, skipping any deleted profiles.
+            foreach (var id in lastSelectedIds)
+            {
+                if (entryByPlayerId.TryGetValue(id, out var entry))
+                {
+                    _currentSelectedPlayers.Add(entry);
+                    entry.SetHighlight(true);
                 }
             }
         }

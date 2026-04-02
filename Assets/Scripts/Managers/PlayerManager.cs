@@ -117,19 +117,18 @@ namespace Farkle.Managers
             }
 
             PlayerSettingsManager.Instance.UpdatePlayerProfiles(updatedProfiles);
-            
-            BackendService.PostGameResultAsync(results)
-                .ContinueWith(task =>
-                {
-                    if (task.IsFaulted)
+
+            if (BackendService.IsConfigured)
+            {
+                BackendService.PostGameResultAsync(results)
+                    .ContinueWith(task =>
                     {
-                        FarkleLogger.LogError("Failed to post game results to backend.");
-                    }
-                    else
-                    {
-                        FarkleLogger.Log("Game results posted to backend successfully.");
-                    }
-                });;
+                        if (task.IsFaulted)
+                            FarkleLogger.LogError("Failed to post game results to backend.");
+                        else
+                            FarkleLogger.Log("Game results posted to backend successfully.");
+                    });
+            }
         }
 
 

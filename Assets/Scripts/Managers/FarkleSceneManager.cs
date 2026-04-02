@@ -19,14 +19,11 @@ namespace Farkle.Managers
         {
             Addressables.LoadSceneAsync("Scene_GameScene").Completed += handle =>
             {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    FarkleGame.Instance.NewGame();
-                }
-                else
+                if (handle.Status != AsyncOperationStatus.Succeeded)
                 {
                     FarkleLogger.LogError("Failed to load game scene.");
                 }
+                // NewGame() is called by ViewController once its dice views are ready.
             };
         }
 

@@ -16,7 +16,8 @@ namespace Farkle.UI
         [SerializeField] public TMP_Text AlertText;
         
         static FarkleUIElement instance;
-        public static FarkleUIElement Instance => instance ? instance : instance = FindFirstObjectByType<FarkleUIElement>(FindObjectsInactive.Include);
+        public static FarkleUIElement Instance => instance ? instance : instance = 
+            FindAnyObjectByType<FarkleUIElement>(FindObjectsInactive.Include);
         
         private void Awake()
         {

@@ -8,7 +8,7 @@ public class Singleton<T> : UnityEngine.MonoBehaviour where T : Singleton<T>
         {
             if (_instance == null)
             {
-                _instance = FindFirstObjectByType<T>();
+                _instance = FindAnyObjectByType<T>(FindObjectsInactive.Include);
                 if (_instance == null)
                 {
                     if (thisObject == null)
