@@ -43,7 +43,9 @@ public class ViewController : Singleton<ViewController>
 
     private void InitDelegates()
     {
+        FarkleGame.Instance.OnRollDiceStart.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnRollDiceStart.AddListener(DoRollDiceAnimation);
+        FarkleGame.Instance.OnRollDiceFinish.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnTurnScoreUpdated.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnSelectDice.AddListener(UpdateDiceView);
         FarkleGame.Instance.OnFarkle.AddListener(UpdateDiceView);
@@ -54,7 +56,9 @@ public class ViewController : Singleton<ViewController>
 
     private void OnDestroy()
     {
+        FarkleGame.Instance.OnRollDiceStart.RemoveListener(UpdateDiceView);
         FarkleGame.Instance.OnRollDiceStart.RemoveListener(DoRollDiceAnimation);
+        FarkleGame.Instance.OnRollDiceFinish.RemoveListener(UpdateDiceView);
         FarkleGame.Instance.OnTurnScoreUpdated.RemoveListener(UpdateDiceView);
         FarkleGame.Instance.OnSelectDice.RemoveListener(UpdateDiceView);
         FarkleGame.Instance.OnFarkle.RemoveListener(UpdateDiceView);
@@ -75,6 +79,7 @@ public class ViewController : Singleton<ViewController>
     }
 
     private void UpdateDiceView(int _) => UpdateDiceView();
+    private void UpdateDiceView(float _) => UpdateDiceView();
     private void UpdateDiceView()
     {
         if (dieViews == null) return;
